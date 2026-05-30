@@ -1,16 +1,201 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Excalifont";
+  src: url("/fonts/Excalifont-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Semantic design tokens ──────────────────────────────────────────────── */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* Authentic Moroccan Flag Colors */
+  --primary: #c1272d;
+  --primary-foreground: #ffffff;
+  --primary-dark: #a11f24;
+  --primary-light: #e34c52;
+
+  --morocco-green: #006233;
+  --morocco-green-light: #008445;
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: #c1272d;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+
+  /* Moromads custom legacy tokens */
+  --gold: oklch(0.714 0.111 76);
+  --gold-dark: oklch(0.625 0.112 72);
+  --gold-light: oklch(0.803 0.085 80);
+  --blue-city: oklch(0.377 0.107 252);
+  --blue-city-light: oklch(0.462 0.101 248);
+  --atlas: oklch(0.37 0.089 153);
+  --atlas-light: oklch(0.45 0.087 153);
+  --cream: oklch(0.977 0.011 75);
+  --sand: oklch(0.864 0.044 76);
+  --dark: oklch(0.178 0.008 50);
+  --dark-soft: oklch(0.218 0.009 51);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #c1272d;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: #c1272d;
+}
+
+/* ─── Tailwind theme — static values ─────────────────────────────────────── */
 @theme {
   --font-sans:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
+    "Excalifont", "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-excalifont: "Excalifont", cursive;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/* ─── Tailwind theme — dynamic (references CSS custom properties) ─────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Moromads legacy inline mappings */
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-morocco-green: var(--morocco-green);
+  --color-morocco-green-light: var(--morocco-green-light);
+  --color-gold: var(--gold);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-light: var(--gold-light);
+  --color-blue-city: var(--blue-city);
+  --color-blue-city-light: var(--blue-city-light);
+  --color-atlas: var(--atlas);
+  --color-atlas-light: var(--atlas-light);
+  --color-cream: var(--cream);
+  --color-sand: var(--sand);
+  --color-dark: var(--dark);
+  --color-dark-soft: var(--dark-soft);
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-background text-foreground;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+.moroccan-hero-bg {
+  background-color: var(--dark);
+  background-image:
+    radial-gradient(
+      ellipse at 15% 60%,
+      color-mix(in oklch, #c1272d 45%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 85% 20%,
+      color-mix(in oklch, var(--gold) 20%, transparent) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 60% 85%,
+      color-mix(in oklch, var(--blue-city) 25%, transparent) 0%,
+      transparent 50%
+    );
+}
+
+.moroccan-pattern-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 0l5.88 18.09L52.5 7.5l-10.59 16.62L60 30l-18.09 5.88L52.5 52.5l-16.62-10.59L30 60l-5.88-18.09L7.5 52.5l10.59-16.62L0 30l18.09-5.88L7.5 7.5l16.62 10.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.city-card-hover {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.city-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px oklch(0 0 0 / 0.25);
 }
