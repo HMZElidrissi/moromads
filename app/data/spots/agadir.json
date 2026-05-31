@@ -1,6 +1,7 @@
 [
   {
     "id": 1,
+    "slug": "buzzy-beans",
     "name": "Buzzy Beans",
     "type": "café",
     "city": "Agadir",
@@ -13,6 +14,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$$",
+    "timing": "Daily: 11:00 – 23:00",
     "outlets": 5,
     "outletsLabel": "Yes",
     "rating": 4.0,

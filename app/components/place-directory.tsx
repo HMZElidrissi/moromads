@@ -1,6 +1,14 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from "react";
 import { useNavigate } from "react-router";
-import { Zap, MapPin, ExternalLink, Star, ChevronDown, SlidersHorizontal } from "lucide-react";
+import {
+  Zap,
+  MapPin,
+  ExternalLink,
+  Star,
+  Clock,
+  ChevronDown,
+  SlidersHorizontal,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 
@@ -12,6 +20,7 @@ export type PriceRange = "$" | "$$" | "$$$";
 
 export type Place = {
   id: number;
+  slug: string;
   name: string;
   type: PlaceType;
   city: string;
@@ -24,6 +33,7 @@ export type Place = {
   comfortScore: number;
   comfortScoreLabel: string;
   priceRange: PriceRange;
+  timing?: string;
   outlets: number;
   outletsLabel: string;
   rating: number;
@@ -338,7 +348,7 @@ function Item({ place, className, ...props }: ItemProps) {
   return (
     <article
       data-slot="place-directory-item"
-      onClick={() => navigate(`/spots/${place.id}`)}
+      onClick={() => navigate(`/spots/${place.slug}`)}
       className={cn(
         "group bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-2 flex flex-col h-full cursor-pointer",
         className,
@@ -390,8 +400,16 @@ function Item({ place, className, ...props }: ItemProps) {
             <h3 className="font-black text-gray-900 text-xl leading-[1.2] tracking-tight group-hover:text-[#C1272D] transition-colors line-clamp-2">
               {place.name}
             </h3>
-            <div className="flex items-center gap-1 mt-1 text-xs font-bold text-gray-400">
-              <span>{place.reviewCount} verified reviews</span>
+            <div className="flex flex-col gap-1 mt-1">
+              <div className="flex items-center gap-1 text-xs font-bold text-gray-400">
+                <span>{place.reviewCount} verified reviews</span>
+              </div>
+              {place.timing && (
+                <div className="flex items-center gap-1 text-[11px] font-bold text-[#C1272D]/70">
+                  <Clock size={12} />
+                  <span>{place.timing}</span>
+                </div>
+              )}
             </div>
           </div>
           <a

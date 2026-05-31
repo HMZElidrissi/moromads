@@ -1,3 +1,4 @@
+import type { Route } from "./+types/spot-details";
 import { useParams, Link } from "react-router";
 import { flattenedSpots } from "~/data/spots";
 import { Footer } from "~/components/footer";
@@ -9,6 +10,7 @@ import {
   Volume2,
   Zap,
   Star,
+  Clock,
   Share2,
   Check,
   Send,
@@ -19,10 +21,34 @@ import {
 import { cn } from "~/lib/utils";
 import { useState } from "react";
 
+export function meta({ params }: Route.MetaArgs) {
+  const spot = flattenedSpots.find((p) => p.slug === params.slug);
+  if (!spot) {
+    return [
+      { title: "Spot Not Found | Moromads" },
+      { name: "description", content: "The work spot you are looking for doesn't exist." },
+    ];
+  }
+
+  return [
+    { title: `${spot.name} | Work Spot in ${spot.city} | Moromads` },
+    {
+      name: "description",
+      content: `Work from ${spot.name} in ${spot.city}. WiFi: ${spot.wifiMbps} Mbps, Noise: ${spot.noiseScoreLabel}, Comfort: ${spot.comfortScoreLabel}. Find the best places to work from in Morocco.`,
+    },
+    { property: "og:title", content: `${spot.name} - ${spot.city} | Moromads` },
+    {
+      property: "og:description",
+      content: `Verified work spot for digital nomads in ${spot.city}, Morocco.`,
+    },
+    { property: "og:image", content: spot.images?.[0] || "" },
+  ];
+}
+
 export default function SpotDetails() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const places = flattenedSpots;
-  const spot = places.find((p) => p.id === Number(id));
+  const spot = places.find((p) => p.slug === slug);
 
   // UI State
   const [copied, setCopied] = useState(false);
@@ -204,11 +230,19 @@ export default function SpotDetails() {
                 <h1 className="text-6xl font-black text-gray-900 tracking-tighter leading-[0.9] mb-4">
                   {spot.name}
                 </h1>
-                <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
-                  <MapPin size={22} className="text-[#C1272D]" />
-                  <span>
-                    {spot.city} · {spot.address}
-                  </span>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
+                    <MapPin size={22} className="text-[#C1272D]" />
+                    <span>
+                      {spot.city} · {spot.address}
+                    </span>
+                  </div>
+                  {spot.timing && (
+                    <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
+                      <Clock size={22} className="text-[#C1272D]" />
+                      <span>{spot.timing}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

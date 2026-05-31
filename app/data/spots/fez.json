@@ -1,6 +1,7 @@
 [
   {
     "id": 8,
+    "slug": "le-vlad",
     "name": "Le Vlad",
     "type": "café",
     "city": "Fez",
@@ -13,6 +14,7 @@
     "comfortScore": 3.5,
     "comfortScoreLabel": "3.5/5",
     "priceRange": "$$",
+    "timing": "Daily: 11:00 – 23:00",
     "outlets": 0,
     "outletsLabel": "",
     "rating": 3.8,
@@ -23,6 +25,7 @@
   },
   {
     "id": 9,
+    "slug": "la-vida",
     "name": "La vida",
     "type": "café",
     "city": "Fez",
@@ -35,6 +38,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$$",
+    "timing": "Daily: 06:45 – 23:00",
     "outlets": 0,
     "outletsLabel": "",
     "rating": 3.9,
@@ -45,6 +49,7 @@
   },
   {
     "id": 10,
+    "slug": "megador",
     "name": "Megador",
     "type": "café",
     "city": "Fez",
@@ -57,6 +62,7 @@
     "comfortScore": 3.5,
     "comfortScoreLabel": "3.5/5",
     "priceRange": "$$",
+    "timing": "Daily: 07:00 – 23:00",
     "outlets": 0,
     "outletsLabel": "",
     "rating": 3.7,
@@ -67,6 +73,7 @@
   },
   {
     "id": 11,
+    "slug": "station-ariquia-miami",
     "name": "Station Ariquia Miami",
     "type": "café",
     "city": "Fez",
@@ -79,6 +86,7 @@
     "comfortScore": 3.0,
     "comfortScoreLabel": "3/5",
     "priceRange": "$$",
+    "timing": "Open 24/7",
     "outlets": 0,
     "outletsLabel": "",
     "rating": 3.2,
@@ -89,6 +97,7 @@
   },
   {
     "id": 12,
+    "slug": "owork",
     "name": "O'Work",
     "type": "coworking",
     "city": "Fez",
@@ -101,6 +110,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$$",
+    "timing": "Mon-Wed, Fri-Sun: 09:00 – 23:00, Thu: 09:00 – 22:00",
     "outlets": 5,
     "outletsLabel": "Yes",
     "rating": 4.0,

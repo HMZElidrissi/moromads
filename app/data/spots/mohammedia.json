@@ -1,6 +1,7 @@
 [
   {
     "id": 5,
+    "slug": "boost-coffee-mohammedia",
     "name": "Boost Coffee Mohammedia",
     "type": "café",
     "city": "Mohammedia",
@@ -13,6 +14,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$",
+    "timing": "Daily: 08:00 – 23:00",
     "outlets": 15,
     "outletsLabel": "Yes - Plenty",
     "rating": 4.1,

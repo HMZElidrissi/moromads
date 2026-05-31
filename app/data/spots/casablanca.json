@@ -1,6 +1,7 @@
 [
   {
     "id": 2,
+    "slug": "espressolab-maarif",
     "name": "EspressoLab Maarif",
     "type": "café",
     "city": "Casablanca",
@@ -13,6 +14,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$$",
+    "timing": "Mon-Sat: 07:00 – 23:00, Sun: 07:00 – 20:00",
     "outlets": 5,
     "outletsLabel": "Yes",
     "rating": 3.8,
@@ -26,6 +28,7 @@
   },
   {
     "id": 3,
+    "slug": "coffy-abdelmoumen",
     "name": "Coffy Abdelmoumen",
     "type": "café",
     "city": "Casablanca",
@@ -38,6 +41,7 @@
     "comfortScore": 5.0,
     "comfortScoreLabel": "5/5",
     "priceRange": "$$",
+    "timing": "Mon-Sat: 07:00 – 21:00, Sun: Closed",
     "outlets": 2,
     "outletsLabel": "Yes - Few",
     "rating": 4.5,
@@ -48,6 +52,7 @@
   },
   {
     "id": 4,
+    "slug": "boost-coffee-abdelmoumen",
     "name": "Boost Coffee Abdelmoumen",
     "type": "café",
     "city": "Casablanca",
@@ -60,6 +65,7 @@
     "comfortScore": 3.0,
     "comfortScoreLabel": "3/5",
     "priceRange": "$",
+    "timing": "Daily: 07:30 – 23:00",
     "outlets": 15,
     "outletsLabel": "Yes - Plenty",
     "rating": 4.2,
@@ -70,6 +76,7 @@
   },
   {
     "id": 6,
+    "slug": "caribou-coffee-bvd-danfa",
     "name": "Caribou Coffee Bvd d'Anfa",
     "type": "café",
     "city": "Casablanca",
@@ -82,6 +89,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$$$",
+    "timing": "Mon-Sat: 07:00 – 23:00, Sun: 08:00 – 23:00",
     "outlets": 2,
     "outletsLabel": "Yes - Few",
     "rating": 3.9,
@@ -92,6 +100,7 @@
   },
   {
     "id": 7,
+    "slug": "the-cloud-coffee-lab",
     "name": "The Cloud coffee lab",
     "type": "café",
     "city": "Casablanca",
@@ -104,6 +113,7 @@
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
     "priceRange": "$$",
+    "timing": "Mon-Fri: 09:00 – 21:00, Sat: 09:00 – 22:00, Sun: Closed",
     "outlets": 5,
     "outletsLabel": "Yes",
     "rating": 4.3,
