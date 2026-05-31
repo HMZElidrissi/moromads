@@ -4,4 +4,5 @@ export default [
   index("routes/home.tsx"),
   route("spots/:slug", "routes/spot-details.tsx"),
   route("about", "routes/about.tsx"),
+  route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

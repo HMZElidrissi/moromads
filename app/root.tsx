@@ -46,7 +46,17 @@ export default function App() {
   return <Outlet />;
 }
 
+import { NotFoundContent } from "./routes/not-found";
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return (
+      <Layout>
+        <NotFoundContent />
+      </Layout>
+    );
+  }
+
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;

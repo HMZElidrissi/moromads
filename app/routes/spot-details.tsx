@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useState } from "react";
+import { NotFoundContent } from "./not-found";
 
 export function meta({ params }: Route.MetaArgs) {
   const spot = flattenedSpots.find((p) => p.slug === params.slug);
@@ -62,22 +63,7 @@ export default function SpotDetails() {
   const [hasRated, setHasRated] = useState(false);
 
   if (!spot) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <main className="flex-1 flex items-center justify-center p-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-black text-gray-900 mb-4">Spot not found</h1>
-            <p className="text-gray-500 mb-8">
-              The work spot you are looking for doesn&apos;t exist.
-            </p>
-            <Button asChild>
-              <Link to="/">Back to home</Link>
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    return <NotFoundContent />;
   }
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -111,43 +97,69 @@ export default function SpotDetails() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fdfcfb]">
-      <main className="flex-1 pb-20">
-        {/* Navigation */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          <Button
-            variant="ghost"
-            asChild
-            className="px-0 text-gray-500 hover:text-gray-900 font-bold group"
+    <div className="min-h-screen bg-white flex flex-col font-['Inter']">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link
+            to="/"
+            className="flex items-center gap-2 group text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <Link to="/">
-              <ChevronLeft
-                size={20}
-                className="mr-1 transition-transform group-hover:-translate-x-1"
-              />
-              Back to exploration
-            </Link>
-          </Button>
-        </div>
+            <ChevronLeft
+              size={20}
+              className="group-hover:-translate-x-1 transition-transform text-[#C1272D]"
+            />
+            <span className="font-black uppercase tracking-widest text-xs">Back to Directory</span>
+          </Link>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* LEFT COLUMN: Visuals & Stats */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="p-3 rounded-full bg-gray-50 text-gray-400 hover:bg-[#C1272D]/10 hover:text-[#C1272D] transition-all"
+              aria-label="Share spot"
+            >
+              <Share2 size={20} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 pt-32 pb-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            {/* LEFT COLUMN: Visuals */}
             <div className="space-y-8">
-              <div className="relative group">
-                <div className="aspect-[16/10] rounded-[2.5rem] shadow-2xl overflow-hidden relative bg-gray-100">
-                  {images[activeImg] ? (
-                    <img
-                      src={images[activeImg]!}
-                      alt={spot.name}
-                      className="w-full h-full object-cover animate-in fade-in duration-500"
-                    />
-                  ) : (
-                    <div className="absolute inset-0" style={{ background: spot.gradient }} />
-                  )}
-                  <div className="absolute top-6 left-6">
-                    <span className="px-4 py-1.5 rounded-full bg-white/95 backdrop-blur-sm text-xs font-black uppercase tracking-widest text-gray-900 shadow-xl border border-white">
-                      {spot.type === "café" ? "☕ Specialty Café" : "💼 Premium Cowork"}
+              <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden group shadow-2xl shadow-gray-200">
+                <div
+                  className="w-full h-full flex transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                  style={{ transform: `translateX(-${activeImg * 100}%)` }}
+                >
+                  {images.map((img, i) => (
+                    <div key={i} className="min-w-full h-full relative">
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={`${spot.name} - View ${i + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center text-white font-black text-4xl"
+                          style={{ background: spot.gradient }}
+                        >
+                          {spot.name}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Badge Overlay */}
+                <div className="absolute top-8 left-8">
+                  <div className="bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-2xl shadow-xl flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-black uppercase tracking-widest text-gray-900">
+                      Verified {spot.type}
                     </span>
                   </div>
                 </div>
@@ -259,216 +271,219 @@ export default function SpotDetails() {
                 </div>
                 <Button
                   onClick={() => setShowRateModal(true)}
-                  className="w-full rounded-[1.5rem] h-14 font-black uppercase tracking-widest bg-gray-900 hover:bg-[#C1272D] shadow-lg shadow-gray-200 transition-all"
+                  className="h-14 px-10 rounded-2xl bg-gray-900 hover:bg-[#C1272D] text-white font-black uppercase tracking-widest transition-all"
                 >
-                  {hasRated ? "✅ Review Submitted" : "Rate this spot"}
+                  Rate this spot
                 </Button>
               </div>
 
-              {/* Actions Section */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button
-                  size="lg"
-                  asChild
-                  className="flex-1 rounded-[1.5rem] h-16 font-black text-sm uppercase tracking-widest bg-[#C1272D] hover:bg-[#C1272D]/90 shadow-2xl shadow-red-100"
-                >
-                  <a href={spot.mapsUrl} target="_blank" rel="noopener noreferrer">
-                    <MapPin size={20} className="mr-2" />
-                    View on Maps
-                  </a>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => setShowShareModal(true)}
-                  className="flex-1 rounded-[1.5rem] h-16 font-black text-sm uppercase tracking-widest border-2 hover:bg-gray-50"
-                >
-                  <Share2 size={20} className="mr-2" />
-                  Share Spot
-                </Button>
+              {/* Connectivity Details */}
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                  Connectivity & Amenities
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="p-6 rounded-[2rem] bg-gray-50 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#C1272D]">
+                        <Zap size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                          Power Outlets
+                        </p>
+                        <p className="text-lg font-black text-gray-900">{spot.outletsLabel}</p>
+                      </div>
+                    </div>
+                    {spot.outlets > 0 && (
+                      <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black uppercase rounded-lg">
+                        Verified
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-6 rounded-[2rem] bg-gray-50 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#C1272D]">
+                        <Wifi size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                          Reliability
+                        </p>
+                        <p className="text-lg font-black text-gray-900">Highly Stable</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2">
+                {spot.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold capitalize"
+                  >
+                    #{tag}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Social Share Modal Overlay */}
+      <Footer />
+
+      {/* Share Modal */}
       {showShareModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
             onClick={() => setShowShareModal(false)}
           />
-          <div className="relative bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl animate-in zoom-in duration-300">
-            <h3 className="text-3xl font-black text-gray-900 tracking-tighter mb-2">
-              Share this spot
-            </h3>
-            <p className="text-gray-500 font-medium mb-8">
-              Let other nomads know where to work from.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {[
-                {
-                  label: "WhatsApp",
-                  icon: <Send size={24} />,
-                  color: "bg-[#25D366]",
-                  link: `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`,
-                },
-                {
-                  label: "X / Twitter",
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                      <path d="M18.244 2.25h3.308l-7.227 7.717L22.875 22.5h-6.653l-5.211-6.817-5.961 6.817H1.738l7.731-8.861L1.25 2.25h6.821l4.704 6.157 5.469-6.157zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
-                    </svg>
-                  ),
-                  color: "bg-black",
-                  link: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
-                },
-                {
-                  label: "LinkedIn",
-                  icon: (
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-                    </svg>
-                  ),
-                  color: "bg-[#0077b5]",
-                  link: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-                },
-              ].map((social) => (
-                <a
-                  key={social.label}
-                  href={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
+          <div className="relative bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-8 right-8 text-gray-400 hover:text-gray-900"
+            >
+              <X size={24} />
+            </button>
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 rounded-full bg-[#C1272D]/5 flex items-center justify-center text-[#C1272D] mx-auto">
+                <Share2 size={32} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
+                  Share Spot
+                </h3>
+                <p className="text-gray-500 font-medium">Spread the word to other nomads!</p>
+              </div>
+              <div className="space-y-3">
+                <button
+                  onClick={copyLink}
                   className={cn(
-                    "flex items-center gap-3 p-4 rounded-3xl text-white font-black transition-transform hover:scale-105 active:scale-95 shadow-lg",
-                    social.color,
+                    "w-full h-14 rounded-2xl flex items-center justify-center gap-3 transition-all font-black uppercase tracking-widest text-sm",
+                    copied
+                      ? "bg-emerald-500 text-white"
+                      : "bg-gray-900 text-white hover:bg-[#C1272D]",
                   )}
                 >
-                  {social.icon}
-                  <span className="text-[10px] uppercase tracking-widest">{social.label}</span>
+                  {copied ? (
+                    <>
+                      <Check size={18} /> Link Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={18} /> Copy Link
+                    </>
+                  )}
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-14 rounded-2xl bg-[#25D366] text-white flex items-center justify-center gap-3 hover:brightness-110 transition-all font-black uppercase tracking-widest text-sm"
+                >
+                  <Send size={18} /> WhatsApp
                 </a>
-              ))}
-              <button
-                onClick={copyLink}
-                className="flex items-center gap-3 p-4 rounded-3xl bg-gray-100 text-gray-900 font-black transition-transform hover:scale-105 active:scale-95 shadow-sm"
-              >
-                {copied ? <Check size={24} className="text-emerald-500" /> : <Copy size={24} />}
-                <span className="text-[10px] uppercase tracking-widest">
-                  {copied ? "Copied" : "Copy Link"}
-                </span>
-              </button>
+              </div>
             </div>
-
-            <Button
-              onClick={() => setShowShareModal(false)}
-              className="w-full rounded-2xl h-14 font-black uppercase bg-gray-100 text-gray-500 hover:bg-gray-200"
-            >
-              Close
-            </Button>
           </div>
         </div>
       )}
 
-      {/* Rate Spot Modal */}
+      {/* Rate Modal */}
       {showRateModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
             onClick={() => setShowRateModal(false)}
           />
-          <div className="relative bg-white w-full max-w-lg rounded-[3rem] p-10 shadow-2xl animate-in zoom-in duration-300">
+          <div className="relative bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
             <button
               onClick={() => setShowRateModal(false)}
-              className="absolute top-8 right-8 w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors"
+              className="absolute top-8 right-8 text-gray-400 hover:text-gray-900"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
+            <div className="space-y-8">
+              <div className="text-center">
+                <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tight">
+                  Rate Spot
+                </h3>
+                <p className="text-gray-500 font-medium">How was your session at {spot.name}?</p>
+              </div>
 
-            <h3 className="text-4xl font-black text-gray-900 tracking-tighter mb-2">
-              Rate this spot
-            </h3>
-            <p className="text-gray-500 font-medium mb-10">
-              How was your work experience at {spot.name}?
-            </p>
-
-            {!hasRated ? (
-              <div className="space-y-10">
-                {[
-                  { id: "wifi", label: "WiFi Speed & Reliability", icon: <Wifi size={20} /> },
-                  { id: "noise", label: "Noise Level & Quietness", icon: <Volume2 size={20} /> },
-                  { id: "comfort", label: "Comfort & Ergonomics", icon: <Zap size={20} /> },
-                ].map((aspect) => (
-                  <div key={aspect.id} className="space-y-4">
-                    <div className="flex justify-between items-center px-1">
-                      <p className="font-black text-sm uppercase tracking-wider text-gray-900 flex items-center gap-2">
-                        {aspect.icon} {aspect.label}
-                      </p>
-                      <span className="font-black text-lg text-[#C1272D]">
-                        {ratings[aspect.id as keyof typeof ratings] || "—"}{" "}
-                        <span className="text-gray-300 text-sm">/ 5</span>
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <button
-                          key={s}
-                          onMouseEnter={() =>
-                            setHoverRatings((prev) => ({ ...prev, [aspect.id]: s }))
-                          }
-                          onMouseLeave={() =>
-                            setHoverRatings((prev) => ({ ...prev, [aspect.id]: 0 }))
-                          }
-                          onClick={() => setRatings((prev) => ({ ...prev, [aspect.id]: s }))}
-                          className="transition-transform active:scale-90"
-                        >
-                          <Star
-                            size={40}
-                            className={cn(
-                              "transition-colors",
-                              (hoverRatings[aspect.id as keyof typeof ratings] ||
-                                ratings[aspect.id as keyof typeof ratings]) >= s
-                                ? "fill-[#C1272D] text-[#C1272D]"
-                                : "fill-gray-100 text-gray-200",
-                            )}
-                          />
-                        </button>
-                      ))}
-                    </div>
+              {hasRated ? (
+                <div className="py-12 text-center space-y-4 animate-in fade-in zoom-in duration-500">
+                  <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-white mx-auto shadow-lg shadow-emerald-200">
+                    <Check size={40} strokeWidth={3} />
                   </div>
-                ))}
-
-                <div className="pt-4">
+                  <p className="text-2xl font-black text-gray-900">Rating Submitted!</p>
+                  <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">
+                    Updating directory scores...
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {(
+                    [
+                      { id: "wifi", label: "WiFi Quality", icon: <Wifi /> },
+                      { id: "noise", label: "Noise Level", icon: <Volume2 /> },
+                      { id: "comfort", label: "Seat Comfort", icon: <Star /> },
+                    ] as const
+                  ).map((criteria) => (
+                    <div key={criteria.id} className="space-y-3">
+                      <div className="flex items-center justify-between px-2">
+                        <span className="font-black uppercase tracking-widest text-[10px] text-gray-400">
+                          {criteria.label}
+                        </span>
+                        <span className="text-xs font-black text-[#C1272D]">
+                          {ratings[criteria.id] > 0 ? `${ratings[criteria.id]}/5` : "Rate"}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onMouseEnter={() =>
+                              setHoverRatings((prev) => ({ ...prev, [criteria.id]: star }))
+                            }
+                            onMouseLeave={() =>
+                              setHoverRatings((prev) => ({ ...prev, [criteria.id]: 0 }))
+                            }
+                            onClick={() => setRatings((prev) => ({ ...prev, [criteria.id]: star }))}
+                            className="flex-1 h-12 rounded-xl bg-gray-50 flex items-center justify-center transition-all group/star"
+                          >
+                            <Star
+                              size={20}
+                              className={cn(
+                                "transition-all",
+                                (hoverRatings[criteria.id] || ratings[criteria.id]) >= star
+                                  ? "text-[#C1272D] fill-[#C1272D] scale-110"
+                                  : "text-gray-200",
+                              )}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                   <Button
-                    disabled={Object.values(ratings).some((v) => v === 0)}
                     onClick={handleRatingSubmit}
-                    className="w-full rounded-3xl h-16 font-black uppercase tracking-widest text-lg bg-gray-900 hover:bg-[#C1272D] shadow-xl transition-all"
+                    disabled={!ratings.wifi || !ratings.noise || !ratings.comfort}
+                    className="w-full h-16 mt-4 rounded-2xl bg-gray-900 hover:bg-[#C1272D] text-white font-black uppercase tracking-widest transition-all disabled:opacity-50"
                   >
-                    Submit Community Review
+                    Submit Rating
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-10 space-y-6">
-                <div className="w-24 h-24 rounded-full bg-emerald-500 flex items-center justify-center text-white mx-auto shadow-2xl shadow-emerald-100 animate-bounce">
-                  <Check size={48} />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-3xl font-black text-gray-900 tracking-tight">
-                    Review Received!
-                  </p>
-                  <p className="text-gray-500 font-medium text-lg">
-                    Your data helps nomads thrive in Morocco. 🇲🇦
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }
