@@ -1,82 +1,83 @@
 [
   {
     "id": 1,
-    "name": "Marrakech",
-    "nameAr": "مراكش",
-    "region": "Marrakech-Safi",
-    "gradient": "linear-gradient(135deg, #e07b39 0%, #c1272d 60%, #7c1a1e 100%)",
-    "emoji": "🕌",
-    "tag": "Red City",
-    "image": "https://images.unsplash.com/photo-1597212618440-806262de4f6b?q=80&w=800"
-  },
-  {
-    "id": 2,
     "name": "Casablanca",
     "nameAr": "الدار البيضاء",
     "region": "Casablanca-Settat",
     "gradient": "linear-gradient(135deg, #1b4f8b 0%, #2563eb 60%, #0ea5e9 100%)",
-    "emoji": "🏙️",
-    "tag": "Economic Hub",
-    "image": "https://images.unsplash.com/photo-1559586616-361e18714958?q=80&w=800"
+    "icon": "🏙️",
+    "image": "/cities/casablanca.jpg"
   },
   {
-    "id": 3,
-    "name": "Chefchaouen",
-    "nameAr": "شفشاون",
-    "region": "Tanger-Tétouan",
-    "gradient": "linear-gradient(135deg, #1d4ed8 0%, #2a6cab 60%, #7dd3fc 100%)",
-    "emoji": "💙",
-    "tag": "Blue Pearl",
-    "image": "https://images.unsplash.com/photo-1548048026-5a1a941d93d3?q=80&w=800"
-  },
-  {
-    "id": 4,
-    "name": "Agadir",
-    "nameAr": "أكادير",
-    "region": "Souss-Massa",
-    "gradient": "linear-gradient(135deg, #0891b2 0%, #0ea5e9 60%, #34d399 100%)",
-    "emoji": "🏖️",
-    "tag": "Atlantic Beaches",
-    "image": "https://images.unsplash.com/photo-1590425712411-e408d66922a6?q=80&w=800"
-  },
-  {
-    "id": 5,
-    "name": "Essaouira",
-    "nameAr": "الصويرة",
-    "region": "Marrakech-Safi",
-    "gradient": "linear-gradient(135deg, #2d6a4f 0%, #40916c 60%, #74c69d 100%)",
-    "emoji": "🌊",
-    "tag": "Wind City",
-    "image": "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?q=80&w=800"
-  },
-  {
-    "id": 6,
-    "name": "Fès",
-    "nameAr": "فاس",
-    "region": "Fès-Meknès",
-    "gradient": "linear-gradient(135deg, #92400e 0%, #d97706 60%, #d4a843 100%)",
-    "emoji": "🏺",
-    "tag": "Imperial City",
-    "image": "https://images.unsplash.com/photo-1620892284992-1279269e8020?q=80&w=800"
-  },
-  {
-    "id": 7,
+    "id": 2,
     "name": "Rabat",
     "nameAr": "الرباط",
     "region": "Rabat-Salé-Kénitra",
     "gradient": "linear-gradient(135deg, #1e5631 0%, #2d6a4f 60%, #52b788 100%)",
-    "emoji": "🏛️",
-    "tag": "The Capital",
-    "image": "https://images.unsplash.com/photo-1628102476625-502758276182?q=80&w=800"
+    "icon": "🏛️",
+    "image": "/cities/rabat.jpg"
   },
   {
-    "id": 8,
+    "id": 3,
+    "name": "Marrakech",
+    "nameAr": "مراكش",
+    "region": "Marrakech-Safi",
+    "gradient": "linear-gradient(135deg, #e07b39 0%, #c1272d 60%, #7c1a1e 100%)",
+    "icon": "🕌",
+    "image": "/cities/marrakech.jpeg"
+  },
+  {
+    "id": 4,
     "name": "Tangier",
     "nameAr": "طنجة",
     "region": "Tanger-Tétouan",
     "gradient": "linear-gradient(135deg, #5b21b6 0%, #6d28d9 60%, #1b4f8b 100%)",
-    "emoji": "⚓",
-    "tag": "Gateway to Europe",
-    "image": "https://images.unsplash.com/photo-1563811771046-ba984ff30900?q=80&w=800"
+    "icon": "⚓",
+    "image": "/cities/tangier.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Fez",
+    "nameAr": "فاس",
+    "region": "Fès-Meknès",
+    "gradient": "linear-gradient(135deg, #92400e 0%, #d97706 60%, #d4a843 100%)",
+    "icon": "🏺",
+    "image": "/cities/fez.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Agadir",
+    "nameAr": "أكادير",
+    "region": "Souss-Massa",
+    "gradient": "linear-gradient(135deg, #0891b2 0%, #0ea5e9 60%, #34d399 100%)",
+    "icon": "🏖️",
+    "image": "/cities/agadir.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Mohammedia",
+    "nameAr": "المحمدية",
+    "region": "Casablanca-Settat",
+    "gradient": "linear-gradient(135deg, #0f4c75 0%, #1b6ca8 60%, #2196f3 100%)",
+    "icon": "🛢️",
+    "image": "/cities/mohammedia.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Taghazout",
+    "nameAr": "تاغازوت",
+    "region": "Souss-Massa",
+    "gradient": "linear-gradient(135deg, #0369a1 0%, #0ea5e9 60%, #34d399 100%)",
+    "icon": "🏄",
+    "image": "/cities/taghazout.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Essaouira",
+    "nameAr": "الصويرة",
+    "region": "Marrakech-Safi",
+    "gradient": "linear-gradient(135deg, #2d6a4f 0%, #40916c 60%, #74c69d 100%)",
+    "icon": "🌊",
+    "image": "/cities/essaouira.jpg"
   }
 ]

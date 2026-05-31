@@ -12,8 +12,8 @@ type City = {
   wifi: number;
   score: number;
   gradient: string;
-  emoji: string;
-  tag: string;
+  icon: string;
+
   image: string;
   spotCount?: number;
 };
@@ -59,10 +59,7 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
       <div className="absolute bottom-0 inset-x-0 p-6 space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-3xl">{city.emoji}</span>
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">
-              {city.tag}
-            </span>
+            <span className="text-3xl">{city.icon}</span>
           </div>
           <div className="flex items-baseline gap-3">
             <h3 className="font-black text-3xl text-white tracking-tighter">{city.name}</h3>

@@ -13,7 +13,7 @@ export function NomadHeader({ className, ...props }: NomadHeaderProps) {
     <header
       data-slot="nomad-header"
       className={cn(
-        "relative overflow-hidden bg-gradient-to-b from-red-50/40 to-white py-16 md:py-24 border-b border-gray-100",
+        "relative overflow-hidden bg-linear-to-b from-red-50/40 to-white py-16 md:py-24 border-b border-gray-100",
         className,
       )}
       {...props}
@@ -26,7 +26,7 @@ export function NomadHeader({ className, ...props }: NomadHeaderProps) {
         className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none"
         aria-hidden="true"
       >
-        <svg className="w-[110%] max-w-[900px] aspect-square" viewBox="0 0 200 200" fill="none">
+        <svg className="w-[110%] max-w-225 aspect-square" viewBox="0 0 200 200" fill="none">
           {/* Outermost ring */}
           <circle cx="100" cy="100" r="97" stroke="#C1272D" strokeWidth="0.3" opacity="0.06" />
           {/* Outer 8-pointed star */}

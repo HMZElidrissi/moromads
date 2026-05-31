@@ -350,7 +350,14 @@ function Item({ place, className, ...props }: ItemProps) {
         className="relative h-44 shrink-0 overflow-hidden"
         style={{ background: place.gradient }}
       >
-        <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300" />
+        {place.images?.[0] && (
+          <img
+            src={place.images[0]}
+            alt={place.name}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-black/20 group-hover:from-black/40 transition-colors duration-300" />
 
         {/* Floating Badges */}
         <div className="absolute top-4 left-4 flex gap-2">
