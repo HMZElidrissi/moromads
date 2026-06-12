@@ -88,7 +88,11 @@ export default function SpotDetails() {
       desc: "30–70 MAD",
       color: "text-amber-600 bg-amber-50 border-amber-100",
     },
-    $$$: { label: "Premium", desc: "70+ MAD", color: "text-[#C1272D] bg-red-50 border-red-100" },
+    $$$: {
+      label: "Premium",
+      desc: "70+ MAD",
+      color: "text-primary bg-primary/10 border-primary/20",
+    },
   };
 
   const handleRatingSubmit = () => {
@@ -106,7 +110,7 @@ export default function SpotDetails() {
           >
             <ChevronLeft
               size={20}
-              className="group-hover:-translate-x-1 transition-transform text-[#C1272D]"
+              className="group-hover:-translate-x-1 transition-transform text-primary"
             />
             <span className="font-black uppercase tracking-widest text-xs">Back to Directory</span>
           </Link>
@@ -114,7 +118,7 @@ export default function SpotDetails() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setShowShareModal(true)}
-              className="p-3 rounded-full bg-gray-50 text-gray-400 hover:bg-[#C1272D]/10 hover:text-[#C1272D] transition-all"
+              className="p-3 rounded-full bg-gray-50 text-gray-400 hover:bg-primary/10 hover:text-primary transition-all"
               aria-label="Share spot"
             >
               <Share2 size={20} />
@@ -196,7 +200,7 @@ export default function SpotDetails() {
                   {
                     label: "Comfort",
                     val: spot.comfortScoreLabel,
-                    icon: <Star size={18} className="text-[#C1272D] fill-[#C1272D]" />,
+                    icon: <Star size={18} className="text-primary fill-primary" />,
                   },
                 ].map((v) => (
                   <div
@@ -244,14 +248,14 @@ export default function SpotDetails() {
                 </h1>
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
-                    <MapPin size={22} className="text-[#C1272D]" />
+                    <MapPin size={22} className="text-primary" />
                     <span>
                       {spot.city} · {spot.address}
                     </span>
                   </div>
                   {spot.timing && (
                     <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
-                      <Clock size={22} className="text-[#C1272D]" />
+                      <Clock size={22} className="text-primary" />
                       <span>{spot.timing}</span>
                     </div>
                   )}
@@ -260,7 +264,7 @@ export default function SpotDetails() {
 
               {/* Community Review Button */}
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col items-center text-center gap-6">
-                <div className="w-16 h-16 rounded-full bg-[#C1272D]/5 flex items-center justify-center text-[#C1272D]">
+                <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary">
                   <Star size={32} className="fill-current" />
                 </div>
                 <div>
@@ -271,7 +275,7 @@ export default function SpotDetails() {
                 </div>
                 <Button
                   onClick={() => setShowRateModal(true)}
-                  className="h-14 px-10 rounded-2xl bg-gray-900 hover:bg-[#C1272D] text-white font-black uppercase tracking-widest transition-all"
+                  className="h-14 px-10 rounded-2xl bg-gray-900 hover:bg-primary text-white font-black uppercase tracking-widest transition-all"
                 >
                   Rate this spot
                 </Button>
@@ -285,7 +289,7 @@ export default function SpotDetails() {
                 <div className="grid grid-cols-1 gap-4">
                   <div className="p-6 rounded-[2rem] bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#C1272D]">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                         <Zap size={20} />
                       </div>
                       <div>
@@ -304,7 +308,7 @@ export default function SpotDetails() {
 
                   <div className="p-6 rounded-[2rem] bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#C1272D]">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                         <Wifi size={20} />
                       </div>
                       <div>
@@ -351,7 +355,7 @@ export default function SpotDetails() {
               <X size={24} />
             </button>
             <div className="text-center space-y-6">
-              <div className="w-20 h-20 rounded-full bg-[#C1272D]/5 flex items-center justify-center text-[#C1272D] mx-auto">
+              <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center text-primary mx-auto">
                 <Share2 size={32} />
               </div>
               <div>
@@ -367,7 +371,7 @@ export default function SpotDetails() {
                     "w-full h-14 rounded-2xl flex items-center justify-center gap-3 transition-all font-black uppercase tracking-widest text-sm",
                     copied
                       ? "bg-emerald-500 text-white"
-                      : "bg-gray-900 text-white hover:bg-[#C1272D]",
+                      : "bg-gray-900 text-white hover:bg-primary",
                   )}
                 >
                   {copied ? (
@@ -440,7 +444,7 @@ export default function SpotDetails() {
                         <span className="font-black uppercase tracking-widest text-[10px] text-gray-400">
                           {criteria.label}
                         </span>
-                        <span className="text-xs font-black text-[#C1272D]">
+                        <span className="text-xs font-black text-primary">
                           {ratings[criteria.id] > 0 ? `${ratings[criteria.id]}/5` : "Rate"}
                         </span>
                       </div>
@@ -462,7 +466,7 @@ export default function SpotDetails() {
                               className={cn(
                                 "transition-all",
                                 (hoverRatings[criteria.id] || ratings[criteria.id]) >= star
-                                  ? "text-[#C1272D] fill-[#C1272D] scale-110"
+                                  ? "text-primary fill-primary scale-110"
                                   : "text-gray-200",
                               )}
                             />
@@ -474,7 +478,7 @@ export default function SpotDetails() {
                   <Button
                     onClick={handleRatingSubmit}
                     disabled={!ratings.wifi || !ratings.noise || !ratings.comfort}
-                    className="w-full h-16 mt-4 rounded-2xl bg-gray-900 hover:bg-[#C1272D] text-white font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                    className="w-full h-16 mt-4 rounded-2xl bg-gray-900 hover:bg-primary text-white font-black uppercase tracking-widest transition-all disabled:opacity-50"
                   >
                     Submit Rating
                   </Button>

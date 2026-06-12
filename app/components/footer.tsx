@@ -12,14 +12,9 @@ export function Footer({ className, ...props }: FooterProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-8">
         {/* Logo */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-[#C1272D] flex items-center justify-center shadow-lg shadow-red-100">
-            <span className="text-white font-black text-lg">M</span>
-          </div>
-          <span className="font-black text-xl text-gray-900 tracking-tight">
-            moro<span className="text-[#C1272D]">mads</span>
-          </span>
-        </div>
+        <Link to="/" aria-label="Moromads home">
+          <img src="/logo.svg" alt="Moromads" className="h-28" />
+        </Link>
 
         {/* Links */}
         <nav
@@ -40,7 +35,7 @@ export function Footer({ className, ...props }: FooterProps) {
             href="https://instagram.com/moromads"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#C1272D] hover:bg-[#C1272D]/10 transition-all"
+            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-all"
             aria-label="Instagram"
           >
             <svg
@@ -61,7 +56,7 @@ export function Footer({ className, ...props }: FooterProps) {
             href="https://tiktok.com/@moromads"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#C1272D] hover:bg-[#C1272D]/10 transition-all"
+            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-all"
             aria-label="TikTok"
           >
             <svg

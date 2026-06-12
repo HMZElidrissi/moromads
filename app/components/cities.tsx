@@ -43,13 +43,13 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
       <div className="absolute top-5 inset-x-5 flex justify-between items-start">
         {city.spotCount !== undefined && city.spotCount > 0 && (
           <div className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center gap-2 shadow-xl">
-            <Coffee size={14} className="text-[#C1272D]" />
+            <Coffee size={14} className="text-primary" />
             <span className="text-[10px] font-black text-white uppercase tracking-wider">
               {city.spotCount} spots
             </span>
           </div>
         )}
-        <div className="px-3 py-1.5 rounded-full bg-[#C1272D] text-white flex items-center gap-1.5 shadow-xl">
+        <div className="px-3 py-1.5 rounded-full bg-primary text-white flex items-center gap-1.5 shadow-xl">
           <Star size={12} className="fill-white" />
           <span className="text-xs font-black">{city.score}</span>
         </div>
@@ -66,7 +66,7 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
             <span className="text-xl text-white/40 font-sans">{city.nameAr}</span>
           </div>
           <div className="flex items-center gap-1.5 text-white/50 text-[10px] font-black uppercase tracking-widest mt-1">
-            <MapPin size={10} className="text-[#C1272D]" />
+            <MapPin size={10} className="text-primary" />
             {city.region}
           </div>
         </div>

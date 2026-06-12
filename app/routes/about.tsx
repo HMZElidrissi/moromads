@@ -4,6 +4,17 @@ import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
 import { ChevronLeft, Heart, Globe, Users, Zap } from "lucide-react";
 
+export function meta() {
+  return [
+    { title: "About Moromads — Morocco's Digital Nomad Work Spot Directory" },
+    {
+      name: "description",
+      content:
+        "Moromads maps the best cafés and coworking spaces for digital nomads across Morocco. Real WiFi data, verified spots, and a growing remote work community.",
+    },
+  ];
+}
+
 export default function About() {
   return (
     <div className="min-h-screen flex flex-col bg-[#fdfcfb]">
@@ -30,23 +41,26 @@ export default function About() {
             <section className="space-y-6">
               <h2 className="text-4xl font-black text-gray-900 tracking-tight">Our Mission</h2>
               <p className="text-xl text-gray-500 leading-relaxed font-medium">
-                Moromads was born from a simple observation: Morocco is one of the most incredible
-                destinations for remote workers, yet finding the right spot to work can be a
-                challenge. Our goal is to map every café and coworking space in the Kingdom,
-                providing reliable data on WiFi speeds, noise levels, and comfort.
+                Moromads was born from a simple observation: Morocco is one of the most underrated
+                destinations for digital nomads, yet finding a reliable coworking space or café with
+                fast WiFi can be a real challenge. Our goal is to map every work-friendly spot in
+                the Kingdom — from coworking spaces in Casablanca to quiet cafés in Fez — and give
+                remote workers the data they actually need: real WiFi speeds, noise levels, and
+                honest comfort ratings.
               </p>
             </section>
 
             {/* Why Morocco */}
             <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-[#C1272D]">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                   <Heart size={24} fill="currentColor" />
                 </div>
                 <h3 className="text-xl font-black text-gray-900">Built with Love</h3>
                 <p className="text-gray-500 font-medium leading-relaxed">
-                  We are locals and nomads who love this country. Every spot on our platform is
-                  verified to ensure you have the best experience.
+                  We are locals and digital nomads who love this country. Every coworking space and
+                  café on Moromads is manually verified so you can work from Morocco with
+                  confidence.
                 </p>
               </div>
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4">
@@ -55,8 +69,9 @@ export default function About() {
                 </div>
                 <h3 className="text-xl font-black text-gray-900">Community Driven</h3>
                 <p className="text-gray-500 font-medium leading-relaxed">
-                  Moromads is powered by you. By sharing your WiFi tests and reviews, you help
-                  thousands of others find their perfect temporary office.
+                  Moromads is powered by Morocco's remote work community. By sharing your WiFi tests
+                  and reviews, you help thousands of digital nomads find their perfect spot across
+                  the Kingdom.
                 </p>
               </div>
             </section>
@@ -76,12 +91,12 @@ export default function About() {
                   {
                     icon: <Users size={20} />,
                     title: "Accessibility",
-                    desc: "Helping you find spots that actually welcome laptops and remote workers.",
+                    desc: "Helping digital nomads and remote workers find coworking spaces and cafés that genuinely welcome laptops.",
                   },
                   {
                     icon: <Globe size={20} />,
                     title: "Local Impact",
-                    desc: "Supporting local businesses by bringing them a consistent community of respectful nomads.",
+                    desc: "Supporting local businesses across Morocco by connecting them with a steady community of respectful remote workers and nomads.",
                   },
                 ].map((val, i) => (
                   <div key={i} className="flex gap-6 items-start">

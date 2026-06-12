@@ -258,7 +258,7 @@ function Filters({ className, ...props }: FiltersProps) {
             <select
               value={filters.sort}
               onChange={(e) => set("sort", e.target.value as Filters["sort"])}
-              className="appearance-none pl-4 pr-10 py-2.5 text-sm font-bold text-gray-900 bg-white border-2 border-gray-100 rounded-full outline-none cursor-pointer transition-all hover:border-[#C1272D]/30"
+              className="appearance-none pl-4 pr-10 py-2.5 text-sm font-bold text-gray-900 bg-white border-2 border-gray-100 rounded-full outline-none cursor-pointer transition-all hover:border-primary/30"
             >
               <option value="rating">Sort: Best rated</option>
               <option value="wifi">Sort: Fastest WiFi</option>
@@ -267,7 +267,7 @@ function Filters({ className, ...props }: FiltersProps) {
             </select>
             <ChevronDown
               size={16}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-[#C1272D]"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-primary"
               aria-hidden
             />
           </div>
@@ -378,7 +378,7 @@ function Item({ place, className, ...props }: ItemProps) {
 
         <div className="absolute top-4 right-4">
           <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20">
-            <Star size={12} className="fill-[#C1272D] text-[#C1272D]" />
+            <Star size={12} className="fill-primary text-primary" />
             <span className="text-xs font-black tracking-tighter">{place.rating.toFixed(1)}</span>
           </div>
         </div>
@@ -386,7 +386,7 @@ function Item({ place, className, ...props }: ItemProps) {
         {/* City tag bottom left */}
         <div className="absolute bottom-4 left-4">
           <span className="flex items-center gap-1 text-[11px] font-black text-white/90 drop-shadow-sm uppercase tracking-widest">
-            <MapPin size={12} className="text-[#C1272D]" />
+            <MapPin size={12} className="text-primary" />
             {place.city}
           </span>
         </div>
@@ -397,7 +397,7 @@ function Item({ place, className, ...props }: ItemProps) {
         {/* Title & Rating Count */}
         <div className="flex justify-between items-start gap-4">
           <div className="flex-1">
-            <h3 className="font-black text-gray-900 text-xl leading-[1.2] tracking-tight group-hover:text-[#C1272D] transition-colors line-clamp-2">
+            <h3 className="font-black text-gray-900 text-xl leading-[1.2] tracking-tight group-hover:text-primary transition-colors line-clamp-2">
               {place.name}
             </h3>
             <div className="flex flex-col gap-1 mt-1">
@@ -405,7 +405,7 @@ function Item({ place, className, ...props }: ItemProps) {
                 <span>{place.reviewCount} verified reviews</span>
               </div>
               {place.timing && (
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#C1272D]/70">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-primary/70">
                   <Clock size={12} />
                   <span>{place.timing}</span>
                 </div>
@@ -417,7 +417,7 @@ function Item({ place, className, ...props }: ItemProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="shrink-0 w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#C1272D]/10 hover:text-[#C1272D] transition-all"
+            className="shrink-0 w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary/10 hover:text-primary transition-all"
             aria-label={`Open ${place.name} in Google Maps`}
           >
             <ExternalLink size={18} />
@@ -462,7 +462,7 @@ function Item({ place, className, ...props }: ItemProps) {
               Power Outlets
             </span>
             <div className="flex items-center gap-1.5 font-black text-sm text-gray-900">
-              <Zap size={14} className="text-[#C1272D]" />
+              <Zap size={14} className="text-primary" />
               {place.outletsLabel}
             </div>
           </div>
@@ -480,7 +480,7 @@ function Item({ place, className, ...props }: ItemProps) {
         </div>
 
         {/* Action */}
-        <Button className="w-full rounded-2xl h-12 font-black text-sm uppercase tracking-widest bg-gray-900 hover:bg-[#C1272D] transition-all group-hover:shadow-lg group-hover:shadow-[#C1272D]/20">
+        <Button className="w-full rounded-2xl h-12 font-black text-sm uppercase tracking-widest bg-gray-900 hover:bg-primary transition-all group-hover:shadow-lg group-hover:shadow-primary/20">
           See Details
         </Button>
       </div>

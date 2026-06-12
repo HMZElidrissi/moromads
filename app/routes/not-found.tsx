@@ -21,7 +21,7 @@ export function NotFoundContent() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <main className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-        <h1 className="text-9xl md:text-[12rem] font-black text-[#C1272D] leading-none mb-4 tracking-tighter">
+        <h1 className="text-9xl md:text-[12rem] font-black text-primary leading-none mb-4 tracking-tighter">
           404
         </h1>
         <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight mb-6">
@@ -33,7 +33,7 @@ export function NotFoundContent() {
         </p>
         <Button
           asChild
-          className="rounded-full px-12 h-14 text-lg font-bold bg-gray-900 hover:bg-[#C1272D] text-white transition-all shadow-lg"
+          className="rounded-full px-12 h-14 text-lg font-bold bg-gray-900 hover:bg-primary text-white transition-all shadow-lg"
         >
           <Link to="/">🇲🇦 Back to exploration</Link>
         </Button>

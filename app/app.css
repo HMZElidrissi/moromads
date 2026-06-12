@@ -17,11 +17,15 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
 
-  /* Authentic Moroccan Flag Colors */
-  --primary: #c1272d;
+  /* Logo palette — terracotta + camel */
+  --primary: #622b14;
   --primary-foreground: #ffffff;
-  --primary-dark: #a11f24;
-  --primary-light: #e34c52;
+  --primary-dark: #4a2010;
+  --primary-light: #7d3720;
+
+  --camel: #c08552;
+  --camel-dark: #a06b3a;
+  --camel-light: #d4a070;
 
   --morocco-green: #006233;
   --morocco-green-light: #008445;
@@ -36,7 +40,7 @@
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: #c1272d;
+  --ring: #622b14;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -44,10 +48,10 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
 
-  /* Moromads custom legacy tokens */
-  --gold: oklch(0.714 0.111 76);
-  --gold-dark: oklch(0.625 0.112 72);
-  --gold-light: oklch(0.803 0.085 80);
+  /* Moromads custom tokens */
+  --gold: #c08552;
+  --gold-dark: #a06b3a;
+  --gold-light: #d4a070;
   --blue-city: oklch(0.377 0.107 252);
   --blue-city-light: oklch(0.462 0.101 248);
   --atlas: oklch(0.37 0.089 153);
@@ -65,7 +69,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: #c1272d;
+  --primary: #622b14;
   --primary-foreground: #ffffff;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -77,7 +81,7 @@
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
-  --ring: #c1272d;
+  --ring: #622b14;
 }
 
 /* ─── Tailwind theme — static values ─────────────────────────────────────── */
@@ -89,6 +93,16 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-spin-slow: spin-slow 40s linear infinite;
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
   @keyframes accordion-down {
     from {
@@ -143,6 +157,9 @@
   --color-primary-light: var(--primary-light);
   --color-morocco-green: var(--morocco-green);
   --color-morocco-green-light: var(--morocco-green-light);
+  --color-camel: var(--camel);
+  --color-camel-dark: var(--camel-dark);
+  --color-camel-light: var(--camel-light);
   --color-gold: var(--gold);
   --color-gold-dark: var(--gold-dark);
   --color-gold-light: var(--gold-light);
@@ -166,12 +183,12 @@ body {
   background-image:
     radial-gradient(
       ellipse at 15% 60%,
-      color-mix(in oklch, #c1272d 45%, transparent) 0%,
+      color-mix(in oklch, var(--primary) 45%, transparent) 0%,
       transparent 55%
     ),
     radial-gradient(
       ellipse at 85% 20%,
-      color-mix(in oklch, var(--gold) 20%, transparent) 0%,
+      color-mix(in oklch, var(--camel) 25%, transparent) 0%,
       transparent 50%
     ),
     radial-gradient(

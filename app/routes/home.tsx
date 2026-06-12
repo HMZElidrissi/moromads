@@ -11,12 +11,22 @@ import { ChevronLeft } from "lucide-react";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Moromads — Work spots in Morocco" },
+    { title: "Moromads — Best Coworking Spaces & Cafés for Digital Nomads in Morocco" },
     {
       name: "description",
       content:
-        "Find cafés and coworking spaces to work from in Morocco. Real WiFi speeds, noise levels, outlet counts, and community reviews.",
+        "Find the best coworking spaces and cafés with fast WiFi for digital nomads across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more. Real WiFi speeds, noise levels, and verified reviews.",
     },
+    {
+      property: "og:title",
+      content: "Moromads — Best Coworking Spaces & Cafés for Digital Nomads in Morocco",
+    },
+    {
+      property: "og:description",
+      content:
+        "Morocco's #1 directory for digital nomads. Verified cafés and coworking spaces with real WiFi data across every major city.",
+    },
+    { name: "twitter:card", content: "summary_large_image" },
   ];
 }
 
@@ -55,7 +65,7 @@ export default function Home() {
 
               <div className="mt-6 mb-10">
                 <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                  Work spots in <span className="text-[#C1272D]">{selectedCity}</span>
+                  Work spots in <span className="text-primary">{selectedCity}</span>
                 </h2>
                 <p className="text-gray-500 mt-2 text-lg">
                   Best cafés and coworking spaces for nomads in {selectedCity}

@@ -19,11 +19,11 @@ export function AddPlaceCTA({ className, ...props }: AddPlaceCTAProps) {
               <PlusCircle size={28} className="text-primary" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3">
-              Know a great spot we&apos;re missing?
+              Know a coworking space or café we&apos;re missing?
             </h2>
             <p className="text-gray-500 text-base mb-8 max-w-xl mx-auto">
-              Help the community by adding a café or coworking space. Include the WiFi speed, noise
-              level, outlet count, and a photo — it takes 2 minutes.
+              Help Morocco&apos;s digital nomad community by adding a work-friendly spot. Include
+              the WiFi speed, noise level, outlet count, and a photo — it takes 2 minutes.
             </p>
             <div className="flex justify-center">
               <Button asChild className="rounded-full px-8 h-12 text-base shadow-md">
