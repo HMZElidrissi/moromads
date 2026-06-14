@@ -23,15 +23,12 @@ export default function About() {
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <Button
-            variant="ghost"
+            size="lg"
             asChild
-            className="px-0 text-gray-500 hover:text-gray-900 font-bold group mb-12"
+            className="rounded-full px-10 h-14 text-lg font-bold bg-[#622b14] hover:bg-[#4a2010] text-white shadow-lg shadow-[#622b14]/30 transition-all hover:scale-105 active:scale-95 mb-12"
           >
             <Link to="/">
-              <ChevronLeft
-                size={20}
-                className="mr-1 transition-transform group-hover:-translate-x-1"
-              />
+              <ChevronLeft size={20} className="mr-1" />
               Back to exploration
             </Link>
           </Button>

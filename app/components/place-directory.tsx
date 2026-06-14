@@ -350,7 +350,7 @@ function Item({ place, className, ...props }: ItemProps) {
       data-slot="place-directory-item"
       onClick={() => navigate(`/spots/${place.slug}`)}
       className={cn(
-        "group bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-2 flex flex-col h-full cursor-pointer",
+        "group bg-white rounded-4xl overflow-hidden border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-2 flex flex-col h-full cursor-pointer",
         className,
       )}
       {...props}
@@ -367,7 +367,7 @@ function Item({ place, className, ...props }: ItemProps) {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-black/20 group-hover:from-black/40 transition-colors duration-300" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/10 to-black/20 group-hover:from-black/40 transition-colors duration-300" />
 
         {/* Floating Badges */}
         <div className="absolute top-4 left-4 flex gap-2">

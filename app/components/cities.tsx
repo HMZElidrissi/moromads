@@ -22,7 +22,7 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
   return (
     <button
       onClick={() => onClick(city.name)}
-      className="group relative block text-left w-full aspect-[4/5] rounded-[2rem] overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+      className="group relative block text-left w-full aspect-[4/5] rounded-4xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
     >
       {/* City Photo Background */}
       <div className="absolute inset-0 bg-gray-200">

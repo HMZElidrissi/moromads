@@ -32,8 +32,9 @@ export function NotFoundContent() {
           Kingdom&apos;s best remote offices.
         </p>
         <Button
+          size="lg"
           asChild
-          className="rounded-full px-12 h-14 text-lg font-bold bg-gray-900 hover:bg-primary text-white transition-all shadow-lg"
+          className="rounded-full px-10 h-14 text-lg font-bold bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95"
         >
           <Link to="/">🇲🇦 Back to exploration</Link>
         </Button>

@@ -205,7 +205,7 @@ export default function SpotDetails() {
                 ].map((v) => (
                   <div
                     key={v.label}
-                    className="bg-white p-5 rounded-[2rem] border border-gray-100 text-center shadow-sm"
+                    className="bg-white p-5 rounded-4xl border border-gray-100 text-center shadow-sm"
                   >
                     <div className="flex justify-center mb-2">{v.icon}</div>
                     <p className="text-lg font-black text-gray-900 leading-tight">{v.val}</p>
@@ -287,7 +287,7 @@ export default function SpotDetails() {
                   Connectivity & Amenities
                 </h4>
                 <div className="grid grid-cols-1 gap-4">
-                  <div className="p-6 rounded-[2rem] bg-gray-50 flex items-center justify-between">
+                  <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                         <Zap size={20} />
@@ -306,7 +306,7 @@ export default function SpotDetails() {
                     )}
                   </div>
 
-                  <div className="p-6 rounded-[2rem] bg-gray-50 flex items-center justify-between">
+                  <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                         <Wifi size={20} />
@@ -342,7 +342,7 @@ export default function SpotDetails() {
 
       {/* Share Modal */}
       {showShareModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-6">
           <div
             className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
             onClick={() => setShowShareModal(false)}
@@ -400,7 +400,7 @@ export default function SpotDetails() {
 
       {/* Rate Modal */}
       {showRateModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-6">
           <div
             className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
             onClick={() => setShowRateModal(false)}
