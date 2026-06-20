@@ -353,6 +353,27 @@ function Item({ place, className, ...props }: ItemProps) {
       ? "text-amber-600 bg-amber-50"
       : "text-red-600 bg-red-50";
 
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barAnimated, setBarAnimated] = useState(false);
+
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setBarAnimated(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const targetWidth = `${Math.min((place.wifiMbps / 120) * 100, 100)}%`;
+
   return (
     <article
       data-slot="place-directory-item"
@@ -438,13 +459,13 @@ function Item({ place, className, ...props }: ItemProps) {
             <span className="text-gray-400">WiFi: {place.wifiSpeedLabel}</span>
             <span className={cn("px-2 py-0.5 rounded-md", wifiColor)}>{place.wifiMbps} Mbps</span>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div ref={barRef} className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
               className={cn(
-                "h-full rounded-full transition-all duration-1000",
+                "h-full rounded-full transition-[width] duration-1000 ease-out",
                 isFast ? "bg-emerald-500" : isOk ? "bg-amber-500" : "bg-red-500",
               )}
-              style={{ width: `${Math.min((place.wifiMbps / 120) * 100, 100)}%` }}
+              style={{ width: barAnimated ? targetWidth : "0%" }}
             />
           </div>
         </div>
