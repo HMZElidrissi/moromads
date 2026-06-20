@@ -58,9 +58,6 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
       {/* Content (Bottom) */}
       <div className="absolute bottom-0 inset-x-0 p-6 space-y-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-3xl">{city.icon}</span>
-          </div>
           <div className="flex items-baseline gap-3">
             <h3 className="font-black text-3xl text-white tracking-tighter">{city.name}</h3>
             <span className="text-xl text-white/40 font-sans">{city.nameAr}</span>
@@ -118,7 +115,7 @@ export function Cities({ onClickCity, className, ...props }: CitiesProps) {
 
   return (
     <section className={cn("py-20 bg-white", className)} {...props}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>

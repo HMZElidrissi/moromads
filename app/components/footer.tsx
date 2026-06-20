@@ -1,5 +1,6 @@
 import { cn } from "~/lib/utils";
 import { Link } from "react-router";
+import { MoroccoFlag } from "~/components/ui/morocco-flag";
 
 export type FooterProps = React.ComponentProps<"footer">;
 
@@ -10,7 +11,7 @@ export function Footer({ className, ...props }: FooterProps) {
       className={cn("border-t border-gray-100 bg-white py-12", className)}
       {...props}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-8">
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-8">
         {/* Logo */}
         <Link to="/" aria-label="Moromads home">
           <img src="/logo.svg" alt="Moromads" className="h-28" />
@@ -73,8 +74,9 @@ export function Footer({ className, ...props }: FooterProps) {
           </a>
         </div>
 
-        <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 select-none">
-          © {new Date().getFullYear()} · Built with love for moromads 🇲🇦
+        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 select-none">
+          <span>© {new Date().getFullYear()} · Built with love for moromads</span>
+          <MoroccoFlag variant="rectangle" className="size-3.5" />
         </div>
       </div>
     </footer>

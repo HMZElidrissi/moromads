@@ -2,6 +2,7 @@ import { RoughNotation } from "react-rough-notation";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { Link } from "react-router";
+import { MoroccoFlag } from "~/components/ui/morocco-flag";
 
 export type NomadHeaderProps = React.ComponentProps<"header">;
 
@@ -68,7 +69,10 @@ export function NomadHeader({ className, ...props }: NomadHeaderProps) {
             asChild
             className="rounded-full px-10 h-14 text-lg font-bold bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95"
           >
-            <Link to="/#explore">🇲🇦 Explore</Link>
+            <Link to="/#explore" className="flex items-center gap-2.5">
+              <MoroccoFlag variant="rectangle" className="size-5" />
+              <span>Explore</span>
+            </Link>
           </Button>
           <div className="flex items-center gap-2 text-sm font-semibold text-gray-400">
             <span>Morocco&apos;s #1 Platform to discover remote work spots</span>

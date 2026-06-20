@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { useNavigate } from "react-router";
 import {
   Zap,
@@ -167,7 +175,7 @@ function Filters({ className, ...props }: FiltersProps) {
       )}
       {...props}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-wrap items-center gap-4">
           <SlidersHorizontal size={18} className="text-gray-400 shrink-0" aria-hidden />
 
@@ -292,7 +300,7 @@ function Grid({ className, ...props }: GridProps) {
     <section
       data-slot="place-directory-grid"
       aria-label="Work spots"
-      className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20", className)}
+      className={cn("max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20", className)}
       {...props}
     >
       {filtered.length === 0 ? (

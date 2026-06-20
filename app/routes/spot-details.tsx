@@ -103,7 +103,7 @@ export default function SpotDetails() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-['Inter']">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center justify-between">
           <Link
             to="/"
             className="flex items-center gap-2 group text-gray-400 hover:text-gray-900 transition-colors"
@@ -128,7 +128,7 @@ export default function SpotDetails() {
       </header>
 
       <main className="flex-1 pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-[90rem] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* LEFT COLUMN: Visuals */}
             <div className="space-y-8">
@@ -153,7 +153,7 @@ export default function SpotDetails() {
                           {spot.name}
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
                   ))}
                 </div>

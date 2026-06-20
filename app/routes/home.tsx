@@ -50,7 +50,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="animate-in slide-in-from-bottom-4 fade-in duration-500">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
               <Button
                 variant="ghost"
                 onClick={() => setSelectedCity(null)}
