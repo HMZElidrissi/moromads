@@ -40,10 +40,12 @@ export type Place = {
   noiseScoreLabel: string;
   comfortScore: number;
   comfortScoreLabel: string;
+  espressoPrice?: number;
   priceRange: PriceRange;
   timing?: string;
-  outlets: number;
   outletsLabel: string;
+  tpe?: boolean | null;
+  nonSmoking?: boolean | null;
   rating: number;
   reviewCount: number;
   gradient: string;
@@ -93,10 +95,15 @@ export type RootProps = React.ComponentProps<"div"> & {
   /** Full list of places to display and filter. */
   places: Place[];
   children: ReactNode;
+  /** Pre-select a city in the filter without restricting allCities options. */
+  initialCity?: string;
 };
 
-function Root({ places, className, children, ...props }: RootProps) {
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+function Root({ places, initialCity, className, children, ...props }: RootProps) {
+  const [filters, setFilters] = useState<Filters>({
+    ...DEFAULT_FILTERS,
+    city: initialCity ?? "All cities",
+  });
 
   const allCities = useMemo(
     () => ["All cities", ...Array.from(new Set(places.map((p) => p.city))).sort()],
@@ -125,13 +132,21 @@ function Root({ places, className, children, ...props }: RootProps) {
       result = result.filter((p) => p.noiseLevel === filters.noise);
     }
     if (filters.price !== "any") {
-      result = result.filter((p) => p.priceRange === filters.price);
+      result = result.filter((p) => {
+        const ep = p.espressoPrice;
+        if (ep === undefined) return p.priceRange === filters.price;
+        if (filters.price === "$") return ep <= 20;
+        if (filters.price === "$$") return ep > 20 && ep <= 35;
+        return ep > 35;
+      });
     }
 
     return [...result].sort((a, b) => {
       if (filters.sort === "rating") return b.rating - a.rating;
       if (filters.sort === "wifi") return b.wifiMbps - a.wifiMbps;
       if (filters.sort === "reviews") return b.reviewCount - a.reviewCount;
+      if (a.espressoPrice !== undefined && b.espressoPrice !== undefined)
+        return a.espressoPrice - b.espressoPrice;
       const order: Record<PriceRange, number> = { $: 0, $$: 1, $$$: 2 };
       return order[a.priceRange] - order[b.priceRange];
     });
@@ -141,7 +156,7 @@ function Root({ places, className, children, ...props }: RootProps) {
     <PlaceDirectoryContext.Provider value={{ filtered, filters, setFilters, allCities }}>
       <div
         data-slot="place-directory"
-        className={cn("bg-[#fdfcfb] min-h-screen", className)}
+        className={cn("bg-cream min-h-screen", className)}
         {...props}
       >
         {children}
@@ -169,10 +184,7 @@ function Filters({ className, ...props }: FiltersProps) {
   return (
     <div
       data-slot="place-directory-filters"
-      className={cn(
-        "sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100",
-        className,
-      )}
+      className={cn("sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm", className)}
       {...props}
     >
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -231,9 +243,9 @@ function Filters({ className, ...props }: FiltersProps) {
               value: filters.price,
               options: [
                 { label: "Any price", value: "any" },
-                { label: "$ · <30 MAD", value: "$" },
-                { label: "$$ · 30–70 MAD", value: "$$" },
-                { label: "$$$ · 70+ MAD", value: "$$$" },
+                { label: "Budget", value: "$" },
+                { label: "Mid-range", value: "$$" },
+                { label: "Premium", value: "$$$" },
               ],
             },
           ].map((select) => (
@@ -289,6 +301,42 @@ function Filters({ className, ...props }: FiltersProps) {
   );
 }
 
+// ─── RevealItem ────────────────────────────────────────────────────────────────
+
+function RevealItem({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+  const ref = useRef<HTMLLIElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <li
+      ref={ref}
+      style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
+      className={cn(
+        "transition-all duration-500",
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
+      )}
+    >
+      {children}
+    </li>
+  );
+}
+
 // ─── Grid ──────────────────────────────────────────────────────────────────────
 
 export type GridProps = React.ComponentProps<"section">;
@@ -316,13 +364,9 @@ function Grid({ className, ...props }: GridProps) {
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 list-none p-0">
           {filtered.map((place, index) => (
-            <li
-              key={place.id}
-              className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
+            <RevealItem key={place.id} delay={Math.min(index % 4, 3) * 80}>
               <Item place={place} />
-            </li>
+            </RevealItem>
           ))}
         </ul>
       )}
@@ -331,6 +375,12 @@ function Grid({ className, ...props }: GridProps) {
 }
 
 // ─── Item ──────────────────────────────────────────────────────────────────────
+
+const priceLabel: Record<PriceRange, string> = {
+  $: "Budget",
+  $$: "Mid-range",
+  $$$: "Premium",
+};
 
 const noiseConfig: Record<NoiseLevel, { label: string; color: string; icon: string }> = {
   quiet: { label: "Quiet", color: "text-emerald-600 bg-emerald-50", icon: "🔇" },
@@ -352,6 +402,8 @@ function Item({ place, className, ...props }: ItemProps) {
     : isOk
       ? "text-amber-600 bg-amber-50"
       : "text-red-600 bg-red-50";
+
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const barRef = useRef<HTMLDivElement>(null);
   const [barAnimated, setBarAnimated] = useState(false);
@@ -389,11 +441,20 @@ function Item({ place, className, ...props }: ItemProps) {
         className="relative h-44 shrink-0 overflow-hidden"
         style={{ background: place.gradient }}
       >
+        {place.images?.[0] && !imgLoaded && (
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 -translate-x-full animate-card-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          </div>
+        )}
         {place.images?.[0] && (
           <img
             src={place.images[0]}
             alt={place.name}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onLoad={() => setImgLoaded(true)}
+            className={cn(
+              "absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105",
+              imgLoaded ? "opacity-100" : "opacity-0",
+            )}
           />
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/10 to-black/20 group-hover:from-black/40 transition-colors duration-300" />
@@ -492,9 +553,33 @@ function Item({ place, className, ...props }: ItemProps) {
             </span>
             <div className="flex items-center gap-1.5 font-black text-sm text-gray-900">
               <Zap size={14} className="text-primary" />
-              {place.outletsLabel}
+              {place.outletsLabel || "Unknown"}
             </div>
           </div>
+        </div>
+
+        {/* Amenity badges */}
+        <div className="flex flex-wrap gap-1.5">
+          {place.tpe === true && (
+            <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wide">
+              TPE
+            </span>
+          )}
+          {place.tpe === false && (
+            <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-400 text-[10px] font-black uppercase tracking-wide">
+              Cash only
+            </span>
+          )}
+          {place.nonSmoking === true && (
+            <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wide">
+              Non-smoking
+            </span>
+          )}
+          {place.nonSmoking === false && (
+            <span className="px-2 py-1 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-wide">
+              Smoking allowed
+            </span>
+          )}
         </div>
 
         {/* Tags & Price */}
@@ -505,12 +590,18 @@ function Item({ place, className, ...props }: ItemProps) {
             </span>
             <span className="text-xs font-black text-emerald-600">{place.comfortScoreLabel}</span>
           </div>
-          <span className="text-sm font-black text-gray-900">{place.priceRange}</span>
+          <span className="text-sm font-black text-gray-900">
+            {place.espressoPrice ? `from ${place.espressoPrice} MAD` : priceLabel[place.priceRange]}
+          </span>
         </div>
 
         {/* Action */}
-        <Button className="w-full rounded-2xl h-12 font-black text-sm uppercase tracking-widest bg-gray-900 hover:bg-primary transition-all group-hover:shadow-lg group-hover:shadow-primary/20">
+        <Button className="relative overflow-hidden w-full rounded-2xl h-12 font-black text-sm uppercase tracking-widest bg-gray-900 hover:bg-primary transition-all group-hover:shadow-lg group-hover:shadow-primary/20">
           See Details
+          <span
+            className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+            aria-hidden="true"
+          />
         </Button>
       </div>
     </article>

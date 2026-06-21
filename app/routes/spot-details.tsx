@@ -17,6 +17,8 @@ import {
   Copy,
   Info,
   X,
+  CreditCard,
+  Wind,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useState } from "react";
@@ -80,17 +82,17 @@ export default function SpotDetails() {
   const priceConfig = {
     $: {
       label: "Budget-friendly",
-      desc: "Under 30 MAD",
+      desc: "≤ 20 MAD",
       color: "text-emerald-600 bg-emerald-50 border-emerald-100",
     },
     $$: {
       label: "Mid-range",
-      desc: "30–70 MAD",
+      desc: "21–35 MAD",
       color: "text-amber-600 bg-amber-50 border-amber-100",
     },
     $$$: {
       label: "Premium",
-      desc: "70+ MAD",
+      desc: "> 35 MAD",
       color: "text-primary bg-primary/10 border-primary/20",
     },
   };
@@ -101,7 +103,7 @@ export default function SpotDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-['Inter']">
+    <div className="min-h-screen bg-white flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center justify-between">
           <Link
@@ -216,28 +218,28 @@ export default function SpotDetails() {
                 ))}
               </div>
 
-              {/* Price Experience Card */}
-              <div
-                className={cn(
-                  "p-6 rounded-[2.5rem] border flex items-center justify-between shadow-sm",
-                  priceConfig[spot.priceRange].color,
-                )}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white/50 flex items-center justify-center font-black text-xl">
-                    {spot.priceRange}
+              {/* Price Experience Card — only for cafés with espresso price */}
+              {spot.espressoPrice && (
+                <div
+                  className={cn(
+                    "p-6 rounded-[2.5rem] border flex items-center justify-between shadow-sm",
+                    priceConfig[spot.priceRange].color,
+                  )}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/50 flex items-center justify-center font-black text-xs text-center leading-tight px-1">
+                      {spot.espressoPrice} MAD
+                    </div>
+                    <div>
+                      <p className="font-black text-lg uppercase tracking-tight">
+                        {priceConfig[spot.priceRange].label}
+                      </p>
+                      <p className="text-sm font-bold opacity-70">espresso</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-black text-lg uppercase tracking-tight">
-                      {priceConfig[spot.priceRange].label}
-                    </p>
-                    <p className="text-sm font-bold opacity-70">
-                      {priceConfig[spot.priceRange].desc}
-                    </p>
-                  </div>
+                  <Info size={24} className="opacity-30" />
                 </div>
-                <Info size={24} className="opacity-30" />
-              </div>
+              )}
             </div>
 
             {/* RIGHT COLUMN: Info & Interaction */}
@@ -296,10 +298,12 @@ export default function SpotDetails() {
                         <p className="text-xs font-black uppercase tracking-widest text-gray-400">
                           Power Outlets
                         </p>
-                        <p className="text-lg font-black text-gray-900">{spot.outletsLabel}</p>
+                        <p className="text-lg font-black text-gray-900">
+                          {spot.outletsLabel || "Unknown"}
+                        </p>
                       </div>
                     </div>
-                    {spot.outlets > 0 && (
+                    {spot.outletsLabel && spot.outletsLabel.toLowerCase().startsWith("yes") && (
                       <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black uppercase rounded-lg">
                         Verified
                       </span>
@@ -319,6 +323,52 @@ export default function SpotDetails() {
                       </div>
                     </div>
                   </div>
+
+                  {spot.tpe !== undefined && spot.tpe !== null && (
+                    <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
+                          <CreditCard size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                            Card Payment (TPE)
+                          </p>
+                          <p className="text-lg font-black text-gray-900">
+                            {spot.tpe ? "Accepted" : "Cash only"}
+                          </p>
+                        </div>
+                      </div>
+                      {spot.tpe && (
+                        <span className="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-black uppercase rounded-lg">
+                          Yes
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {spot.nonSmoking !== undefined && spot.nonSmoking !== null && (
+                    <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
+                          <Wind size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                            Smoking
+                          </p>
+                          <p className="text-lg font-black text-gray-900">
+                            {spot.nonSmoking ? "Non-smoking area" : "Smoking allowed"}
+                          </p>
+                        </div>
+                      </div>
+                      {spot.nonSmoking && (
+                        <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black uppercase rounded-lg">
+                          Clean air
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

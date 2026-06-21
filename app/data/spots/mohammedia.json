@@ -6,21 +6,23 @@
     "type": "café",
     "city": "Mohammedia",
     "address": "3 Rue Ibn Rochd, Mohammedia 28810, Morocco",
-    "mapsUrl": "https://www.google.com/maps/place/?q=place_id:ChIJYfves-63pw0RGcC7KJC-MSI",
+    "mapsUrl": "https://maps.app.goo.gl/FCvHM6F2jPb5B4Ew9",
     "wifiMbps": 60,
     "wifiSpeedLabel": "Good",
     "noiseLevel": "moderate",
     "noiseScoreLabel": "3/5",
     "comfortScore": 4.0,
     "comfortScoreLabel": "4/5",
+    "espressoPrice": 20,
     "priceRange": "$",
     "timing": "Daily: 08:00 – 23:00",
-    "outlets": 15,
     "outletsLabel": "Yes - Plenty",
+    "tpe": true,
+    "nonSmoking": true,
     "rating": 4.1,
     "reviewCount": 31,
     "gradient": "linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%)",
     "images": ["https://images.unsplash.com/photo-1445116572660-236099ec97a0?q=80&w=800"],
-    "tags": ["community", "chill", "garden"]
+    "tags": ["community", "chill", "garden", "non-smoking"]
   }
 ]

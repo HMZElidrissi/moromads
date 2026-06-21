@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Route } from "./+types/home";
 import { flattenedSpots } from "~/data/spots";
 import { PlaceDirectory } from "~/components/place-directory";
@@ -34,46 +34,46 @@ export default function Home() {
   const places = flattenedSpots;
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
-  // Filter places based on selected city
-  const cityPlaces = selectedCity
-    ? places.filter((p) => p.city.toLowerCase() === selectedCity.toLowerCase())
-    : [];
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [selectedCity]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white font-sans">
-      <NomadHeader />
-
+    <div className="min-h-screen flex flex-col bg-cream">
       <main id="explore" className="flex-1">
         {!selectedCity ? (
           <div className="animate-in fade-in duration-500">
+            <NomadHeader />
             <Cities onClickCity={(city) => setSelectedCity(city)} className="py-12 md:py-20" />
           </div>
         ) : (
-          <div className="animate-in slide-in-from-bottom-4 fade-in duration-500">
-            <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-              <Button
-                variant="ghost"
-                onClick={() => setSelectedCity(null)}
-                className="group flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold px-0"
-              >
-                <ChevronLeft
-                  size={20}
-                  className="transition-transform group-hover:-translate-x-1"
-                />
-                Back to all cities
-              </Button>
+          <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 bg-white">
+            <div className="bg-white pb-10">
+              <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+                <Button
+                  variant="ghost"
+                  onClick={() => setSelectedCity(null)}
+                  className="group flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold px-0"
+                >
+                  <ChevronLeft
+                    size={20}
+                    className="transition-transform group-hover:-translate-x-1"
+                  />
+                  Back to all cities
+                </Button>
 
-              <div className="mt-6 mb-10">
-                <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                  Work spots in <span className="text-primary">{selectedCity}</span>
-                </h2>
-                <p className="text-gray-500 mt-2 text-lg">
-                  Best cafés and coworking spaces for nomads in {selectedCity}
-                </p>
+                <div className="mt-6">
+                  <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+                    Work spots in <span className="text-primary">{selectedCity}</span>
+                  </h2>
+                  <p className="text-gray-500 mt-2 text-lg">
+                    Best cafés and coworking spaces for nomads in {selectedCity}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <PlaceDirectory.Root places={cityPlaces}>
+            <PlaceDirectory.Root places={places} initialCity={selectedCity ?? undefined}>
               <PlaceDirectory.Filters />
               <PlaceDirectory.Grid />
             </PlaceDirectory.Root>

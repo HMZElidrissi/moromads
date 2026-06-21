@@ -1,0 +1,28 @@
+[
+  {
+    "id": 25,
+    "slug": "cafe-creme",
+    "name": "Café Crème",
+    "type": "café",
+    "city": "Rabat",
+    "address": "16 Rue Aguelmane Sidi Ali, Rabat",
+    "mapsUrl": "https://maps.app.goo.gl/2CbiTidSQ6dqvJ7k6",
+    "wifiMbps": 25,
+    "wifiSpeedLabel": "Medium",
+    "noiseLevel": "moderate",
+    "noiseScoreLabel": "3/5",
+    "comfortScore": 4.0,
+    "comfortScoreLabel": "4/5",
+    "espressoPrice": 13,
+    "priceRange": "$",
+    "timing": "Daily: 07:00 – 22:00",
+    "outletsLabel": "Yes - Few",
+    "tpe": false,
+    "nonSmoking": null,
+    "rating": 4.0,
+    "reviewCount": 1,
+    "gradient": "linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)",
+    "images": ["https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800"],
+    "tags": ["rabat", "classic", "study", "non-smoking"]
+  }
+]

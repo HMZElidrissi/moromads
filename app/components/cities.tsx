@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Wifi, MapPin, Star, Coffee } from "lucide-react";
 import { cn } from "~/lib/utils";
 import citiesData from "~/data/cities.json";
@@ -19,8 +20,29 @@ type City = {
 };
 
 function CityCard({ city, onClick }: { city: City; onClick: (name: string) => void }) {
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [hovered, setHovered] = useState(false);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLButtonElement>) {
+    const el = cardRef.current;
+    if (!el) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    setOffset({
+      x: ((e.clientX - left) / width - 0.5) * 18,
+      y: ((e.clientY - top) / height - 0.5) * 18,
+    });
+  }
+
   return (
     <button
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => {
+        setHovered(false);
+        setOffset({ x: 0, y: 0 });
+      }}
       onClick={() => onClick(city.name)}
       className="group relative block text-left w-full aspect-[4/5] rounded-4xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
     >
@@ -29,7 +51,11 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
         <img
           src={city.image}
           alt={city.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover"
+          style={{
+            transform: `scale(${hovered ? 1.1 : 1}) translate(${offset.x}px, ${offset.y}px)`,
+            transition: "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          }}
         />
         {/* Overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
@@ -114,7 +140,7 @@ export function Cities({ onClickCity, className, ...props }: CitiesProps) {
   });
 
   return (
-    <section className={cn("py-20 bg-white", className)} {...props}>
+    <section className={cn("py-20 bg-cream", className)} {...props}>
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
