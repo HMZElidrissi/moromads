@@ -5,6 +5,7 @@ import { createContext } from "react-router";
 export type Env = {
   DB: D1Database;
   BUCKET: R2Bucket;
+  APP_URL: string;
   ADMIN_KEY: string;
 };
 

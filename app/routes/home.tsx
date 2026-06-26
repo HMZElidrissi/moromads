@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import type { Route } from "./+types/home";
-import { flattenedSpots } from "~/data/spots";
+import { getAllSpots } from "~/lib/db.server";
+import { cloudflareContext } from "../../load-context";
 import { PlaceDirectory } from "~/components/place-directory";
 import { AddPlaceCTA } from "~/components/add-place-cta";
 import { Footer } from "~/components/footer";
@@ -8,6 +9,7 @@ import { NomadHeader } from "~/components/nomad-header";
 import { Cities } from "~/components/cities";
 import { Button } from "~/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import { useSearchParams } from "react-router";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -30,9 +32,16 @@ export function meta(_: Route.MetaArgs) {
   ];
 }
 
-export default function Home() {
-  const places = flattenedSpots;
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+export async function loader({ context }: Route.LoaderArgs) {
+  const { env } = context.get(cloudflareContext);
+  const spots = await getAllSpots(env.DB);
+  return { spots };
+}
+
+export default function Home({ loaderData }: Route.ComponentProps) {
+  const { spots } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedCity = searchParams.get("city");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -44,7 +53,7 @@ export default function Home() {
         {!selectedCity ? (
           <div className="animate-in fade-in duration-500">
             <NomadHeader />
-            <Cities onClickCity={(city) => setSelectedCity(city)} className="py-12 md:py-20" />
+            <Cities onClickCity={(city) => setSearchParams({ city })} className="py-12 md:py-20" />
           </div>
         ) : (
           <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 bg-white">
@@ -52,7 +61,7 @@ export default function Home() {
               <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 pt-8">
                 <Button
                   variant="ghost"
-                  onClick={() => setSelectedCity(null)}
+                  onClick={() => setSearchParams({})}
                   className="group flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold px-0"
                 >
                   <ChevronLeft
@@ -73,7 +82,7 @@ export default function Home() {
               </div>
             </div>
 
-            <PlaceDirectory.Root places={places} initialCity={selectedCity ?? undefined}>
+            <PlaceDirectory.Root places={spots} initialCity={selectedCity ?? undefined}>
               <PlaceDirectory.Filters />
               <PlaceDirectory.Grid />
             </PlaceDirectory.Root>

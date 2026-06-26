@@ -146,8 +146,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { Toaster } from "~/components/ui/sonner";
+
 export default function App() {
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <Toaster position="top-right" richColors />
+    </>
+  );
 }
 
 import { NotFoundContent } from "./routes/not-found";

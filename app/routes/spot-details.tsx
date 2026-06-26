@@ -1,6 +1,7 @@
 import type { Route } from "./+types/spot-details";
-import { useParams, Link } from "react-router";
-import { flattenedSpots } from "~/data/spots";
+import { Link, useNavigate } from "react-router";
+import { getSpotBySlug, addReview } from "~/lib/db.server";
+import { cloudflareContext } from "../../load-context";
 import { Footer } from "~/components/footer";
 import { Button } from "~/components/ui/button";
 import {
@@ -22,10 +23,40 @@ import {
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useState } from "react";
+import { useFetcher } from "react-router";
 import { NotFoundContent } from "./not-found";
 
-export function meta({ params }: Route.MetaArgs) {
-  const spot = flattenedSpots.find((p) => p.slug === params.slug);
+export async function loader({ params, context }: Route.LoaderArgs) {
+  const { env } = context.get(cloudflareContext);
+  const spot = await getSpotBySlug(env.DB, params.slug ?? "");
+  return { spot };
+}
+
+export async function action({ params, request, context }: Route.ActionArgs) {
+  const { env } = context.get(cloudflareContext);
+  const form = await request.formData();
+  const wifi = Number(form.get("wifi"));
+  const noise = Number(form.get("noise"));
+  const comfort = Number(form.get("comfort"));
+  if (
+    !Number.isInteger(wifi) ||
+    wifi < 1 ||
+    wifi > 5 ||
+    !Number.isInteger(noise) ||
+    noise < 1 ||
+    noise > 5 ||
+    !Number.isInteger(comfort) ||
+    comfort < 1 ||
+    comfort > 5
+  ) {
+    return { ok: false, error: "Invalid scores" };
+  }
+  await addReview(env.DB, params.slug ?? "", { wifi, noise, comfort });
+  return { ok: true };
+}
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  const spot = loaderData?.spot;
   if (!spot) {
     return [
       { title: "Spot Not Found | Moromads" },
@@ -48,21 +79,22 @@ export function meta({ params }: Route.MetaArgs) {
   ];
 }
 
-export default function SpotDetails() {
-  const { slug } = useParams();
-  const places = flattenedSpots;
-  const spot = places.find((p) => p.slug === slug);
+export default function SpotDetails({ loaderData }: Route.ComponentProps) {
+  const { spot } = loaderData;
 
   // UI State
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showRateModal, setShowRateModal] = useState(false);
 
   // Rating State
+  const fetcher = useFetcher<typeof action>();
   const [ratings, setRatings] = useState({ wifi: 0, noise: 0, comfort: 0 });
   const [hoverRatings, setHoverRatings] = useState({ wifi: 0, noise: 0, comfort: 0 });
-  const [hasRated, setHasRated] = useState(false);
+  const hasRated = fetcher.data?.ok === true;
+  const isSubmitting = fetcher.state === "submitting";
 
   if (!spot) {
     return <NotFoundContent />;
@@ -81,33 +113,39 @@ export default function SpotDetails() {
 
   const priceConfig = {
     $: {
-      label: "Budget-friendly",
-      desc: "≤ 20 MAD",
-      color: "text-emerald-600 bg-emerald-50 border-emerald-100",
+      label: "Budget",
+      bg: "bg-emerald-50",
+      labelColor: "text-emerald-600",
+      coin: "from-emerald-300 to-emerald-500",
+      lines: "stroke-emerald-300",
     },
     $$: {
-      label: "Mid-range",
-      desc: "21–35 MAD",
-      color: "text-amber-600 bg-amber-50 border-amber-100",
+      label: "Mid-Range",
+      bg: "bg-amber-50",
+      labelColor: "text-amber-500",
+      coin: "from-yellow-300 to-amber-500",
+      lines: "stroke-amber-200",
     },
     $$$: {
       label: "Premium",
-      desc: "> 35 MAD",
-      color: "text-primary bg-primary/10 border-primary/20",
+      bg: "bg-primary/10",
+      labelColor: "text-primary",
+      coin: "from-primary/60 to-primary",
+      lines: "stroke-primary/20",
     },
   };
 
-  const handleRatingSubmit = () => {
-    setHasRated(true);
-    setTimeout(() => setShowRateModal(false), 2500);
+  const handleModalClose = () => {
+    setShowRateModal(false);
+    if (hasRated) setRatings({ wifi: 0, noise: 0, comfort: 0 });
   };
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center justify-between">
-          <Link
-            to="/"
+          <button
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
             className="flex items-center gap-2 group text-gray-400 hover:text-gray-900 transition-colors"
           >
             <ChevronLeft
@@ -115,7 +153,7 @@ export default function SpotDetails() {
               className="group-hover:-translate-x-1 transition-transform text-primary"
             />
             <span className="font-black uppercase tracking-widest text-xs">Back to Directory</span>
-          </Link>
+          </button>
 
           <div className="flex items-center gap-4">
             <button
@@ -133,61 +171,64 @@ export default function SpotDetails() {
         <div className="max-w-[90rem] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* LEFT COLUMN: Visuals */}
-            <div className="space-y-8">
-              <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden group shadow-2xl shadow-gray-200">
-                <div
-                  className="w-full h-full flex transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
-                  style={{ transform: `translateX(-${activeImg * 100}%)` }}
-                >
-                  {images.map((img, i) => (
-                    <div key={i} className="min-w-full h-full relative">
-                      {img ? (
-                        <img
-                          src={img}
-                          alt={`${spot.name} - View ${i + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div
-                          className="w-full h-full flex items-center justify-center text-white font-black text-4xl"
-                          style={{ background: spot.gradient }}
-                        >
-                          {spot.name}
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    </div>
-                  ))}
-                </div>
+            <div className="space-y-4">
+              {/* Main image */}
+              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
+                {images[activeImg] ? (
+                  <img
+                    key={activeImg}
+                    src={images[activeImg]!}
+                    alt={`${spot.name} - View ${activeImg + 1}`}
+                    className="w-full h-full object-cover transition-opacity duration-300"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center text-white font-black text-4xl"
+                    style={{ background: spot.gradient }}
+                  >
+                    {spot.name}
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                {/* Badge Overlay */}
-                <div className="absolute top-8 left-8">
-                  <div className="bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-2xl shadow-xl flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                {/* Badge */}
+                <div className="absolute top-6 left-6">
+                  <div className="bg-white/90 backdrop-blur-md px-5 py-2 rounded-xl shadow-lg flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-xs font-black uppercase tracking-widest text-gray-900">
                       Verified {spot.type}
                     </span>
                   </div>
                 </div>
-
-                {images.length > 1 && (
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                    {images.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveImg(i)}
-                        className={cn(
-                          "w-2.5 h-2.5 rounded-full transition-all border border-white/50",
-                          activeImg === i ? "bg-white scale-125 shadow-lg" : "bg-white/40",
-                        )}
-                      />
-                    ))}
-                  </div>
-                )}
               </div>
 
+              {/* Thumbnail strip */}
+              {images.length > 1 && (
+                <div className="flex gap-2">
+                  {images.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      aria-label={`View image ${i + 1}`}
+                      className={cn(
+                        "flex-1 aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all",
+                        activeImg === i
+                          ? "border-primary shadow-md shadow-primary/20 opacity-100"
+                          : "border-transparent opacity-50 hover:opacity-80",
+                      )}
+                    >
+                      {img ? (
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full" style={{ background: spot.gradient }} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Vitals Summary Grid */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 {[
                   {
                     label: "WiFi Speed",
@@ -207,37 +248,79 @@ export default function SpotDetails() {
                 ].map((v) => (
                   <div
                     key={v.label}
-                    className="bg-white p-5 rounded-4xl border border-gray-100 text-center shadow-sm"
+                    className="bg-white px-4 py-6 rounded-2xl border border-gray-100 text-center shadow-sm flex flex-col items-center gap-3"
                   >
-                    <div className="flex justify-center mb-2">{v.icon}</div>
-                    <p className="text-lg font-black text-gray-900 leading-tight">{v.val}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">
-                      {v.label}
-                    </p>
+                    <div>{v.icon}</div>
+                    <div>
+                      <p className="text-base font-black text-gray-900">{v.val}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">
+                        {v.label}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* Price Experience Card — only for cafés with espresso price */}
+              {/* Price card */}
               {spot.espressoPrice && (
                 <div
                   className={cn(
-                    "p-6 rounded-[2.5rem] border flex items-center justify-between shadow-sm",
-                    priceConfig[spot.priceRange].color,
+                    "relative overflow-hidden rounded-[2rem] px-8 py-5 flex items-center justify-between gap-6",
+                    priceConfig[spot.priceRange].bg,
                   )}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/50 flex items-center justify-center font-black text-xs text-center leading-tight px-1">
-                      {spot.espressoPrice} MAD
+                  {/* Decorative lines */}
+                  <svg
+                    className="absolute right-12 top-0 h-full w-48 opacity-20 pointer-events-none"
+                    viewBox="0 0 200 80"
+                    preserveAspectRatio="none"
+                  >
+                    {[-20, 0, 20, 40, 60, 80, 100].map((x) => (
+                      <line
+                        key={x}
+                        x1={x}
+                        y1="0"
+                        x2={x + 80}
+                        y2="80"
+                        strokeWidth="1.5"
+                        className={priceConfig[spot.priceRange].lines}
+                      />
+                    ))}
+                  </svg>
+
+                  {/* Coin + price */}
+                  <div className="flex items-center gap-4 shrink-0 z-10">
+                    <div
+                      className={cn(
+                        "w-11 h-11 rounded-full bg-gradient-to-br shadow-md flex items-center justify-center",
+                        priceConfig[spot.priceRange].coin,
+                      )}
+                    >
+                      <span className="text-white font-black text-[10px] leading-tight text-center">
+                        MAD
+                        <br />
+                        د.م
+                      </span>
                     </div>
                     <div>
-                      <p className="font-black text-lg uppercase tracking-tight">
-                        {priceConfig[spot.priceRange].label}
-                      </p>
-                      <p className="text-sm font-bold opacity-70">espresso</p>
+                      <p className="text-xs text-gray-500 font-medium">Avg. price:</p>
+                      <p className="text-sm font-black text-gray-800">{spot.espressoPrice} MAD</p>
                     </div>
                   </div>
-                  <Info size={24} className="opacity-30" />
+
+                  {/* Label */}
+                  <p
+                    className={cn(
+                      "text-3xl font-black uppercase z-10 tracking-wide",
+                      priceConfig[spot.priceRange].labelColor,
+                    )}
+                    style={{ fontFamily: "var(--font-excalifont)" }}
+                  >
+                    {priceConfig[spot.priceRange].label}
+                  </p>
+
+                  {/* Info */}
+                  <Info size={20} className="shrink-0 z-10 opacity-30" />
                 </div>
               )}
             </div>
@@ -249,53 +332,71 @@ export default function SpotDetails() {
                   {spot.name}
                 </h1>
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
-                    <MapPin size={22} className="text-primary" />
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={18}
+                          className={cn(
+                            i < Math.round(spot.rating)
+                              ? "text-primary fill-primary"
+                              : "text-gray-200 fill-gray-200",
+                          )}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-2xl font-black text-gray-900">
+                      {spot.rating.toFixed(1)}
+                    </span>
+                    <span className="text-gray-400 font-medium">
+                      ({spot.reviewCount} {spot.reviewCount === 1 ? "review" : "reviews"})
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600 font-medium text-base">
+                    <MapPin size={20} className="text-primary shrink-0" />
                     <span>
                       {spot.city} · {spot.address}
                     </span>
                   </div>
                   {spot.timing && (
-                    <div className="flex items-center gap-3 text-gray-400 font-bold text-lg">
-                      <Clock size={22} className="text-primary" />
+                    <div className="flex items-center gap-3 text-gray-600 font-medium text-base">
+                      <Clock size={20} className="text-primary shrink-0" />
                       <span>{spot.timing}</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Community Review Button */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col items-center text-center gap-6">
-                <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary">
-                  <Star size={32} className="fill-current" />
-                </div>
+              {/* Community Review CTA */}
+              <div className="bg-white px-8 py-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between gap-6">
                 <div>
-                  <h3 className="text-2xl font-black text-gray-900">Been here before?</h3>
-                  <p className="text-gray-500 font-medium mt-1">
-                    Share your experience with other nomads.
+                  <h3 className="text-base font-black text-gray-900">Been here?</h3>
+                  <p className="text-sm text-gray-500 font-medium mt-0.5">
+                    Help other nomads — rate your experience.
                   </p>
                 </div>
                 <Button
                   onClick={() => setShowRateModal(true)}
-                  className="h-14 px-10 rounded-2xl bg-gray-900 hover:bg-primary text-white font-black uppercase tracking-widest transition-all"
+                  className="shrink-0 h-11 px-6 rounded-xl bg-gray-900 hover:bg-primary text-white font-black uppercase tracking-widest text-xs transition-all"
                 >
-                  Rate this spot
+                  Rate spot
                 </Button>
               </div>
 
               {/* Connectivity Details */}
               <div className="space-y-6">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                   Connectivity & Amenities
                 </h4>
                 <div className="grid grid-cols-1 gap-4">
-                  <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
+                  <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                         <Zap size={20} />
                       </div>
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-500">
                           Power Outlets
                         </p>
                         <p className="text-lg font-black text-gray-900">
@@ -310,13 +411,13 @@ export default function SpotDetails() {
                     )}
                   </div>
 
-                  <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
+                  <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                         <Wifi size={20} />
                       </div>
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-500">
                           Reliability
                         </p>
                         <p className="text-lg font-black text-gray-900">Highly Stable</p>
@@ -325,13 +426,13 @@ export default function SpotDetails() {
                   </div>
 
                   {spot.tpe !== undefined && spot.tpe !== null && (
-                    <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
+                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                           <CreditCard size={20} />
                         </div>
                         <div>
-                          <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-500">
                             Card Payment (TPE)
                           </p>
                           <p className="text-lg font-black text-gray-900">
@@ -348,13 +449,13 @@ export default function SpotDetails() {
                   )}
 
                   {spot.nonSmoking !== undefined && spot.nonSmoking !== null && (
-                    <div className="p-6 rounded-4xl bg-gray-50 flex items-center justify-between">
+                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                           <Wind size={20} />
                         </div>
                         <div>
-                          <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-500">
                             Smoking
                           </p>
                           <p className="text-lg font-black text-gray-900">
@@ -397,7 +498,7 @@ export default function SpotDetails() {
             className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
             onClick={() => setShowShareModal(false)}
           />
-          <div className="relative bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl animate-in zoom-in-95 duration-300">
             <button
               onClick={() => setShowShareModal(false)}
               className="absolute top-8 right-8 text-gray-400 hover:text-gray-900"
@@ -453,11 +554,11 @@ export default function SpotDetails() {
         <div className="fixed inset-0 z-100 flex items-center justify-center p-6">
           <div
             className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
-            onClick={() => setShowRateModal(false)}
+            onClick={handleModalClose}
           />
-          <div className="relative bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative bg-white w-full max-w-md rounded-2xl p-10 shadow-2xl animate-in zoom-in-95 duration-300">
             <button
-              onClick={() => setShowRateModal(false)}
+              onClick={handleModalClose}
               className="absolute top-8 right-8 text-gray-400 hover:text-gray-900"
             >
               <X size={24} />
@@ -481,7 +582,7 @@ export default function SpotDetails() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <fetcher.Form method="post" className="space-y-6">
                   {(
                     [
                       { id: "wifi", label: "WiFi Quality", icon: <Wifi /> },
@@ -498,10 +599,12 @@ export default function SpotDetails() {
                           {ratings[criteria.id] > 0 ? `${ratings[criteria.id]}/5` : "Rate"}
                         </span>
                       </div>
+                      <input type="hidden" name={criteria.id} value={ratings[criteria.id]} />
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
                             key={star}
+                            type="button"
                             onMouseEnter={() =>
                               setHoverRatings((prev) => ({ ...prev, [criteria.id]: star }))
                             }
@@ -525,14 +628,19 @@ export default function SpotDetails() {
                       </div>
                     </div>
                   ))}
+                  {fetcher.data?.ok === false && (
+                    <p className="text-xs font-bold text-red-500 text-center">
+                      Something went wrong. Please try again.
+                    </p>
+                  )}
                   <Button
-                    onClick={handleRatingSubmit}
-                    disabled={!ratings.wifi || !ratings.noise || !ratings.comfort}
+                    type="submit"
+                    disabled={!ratings.wifi || !ratings.noise || !ratings.comfort || isSubmitting}
                     className="w-full h-16 mt-4 rounded-2xl bg-gray-900 hover:bg-primary text-white font-black uppercase tracking-widest transition-all disabled:opacity-50"
                   >
-                    Submit Rating
+                    {isSubmitting ? "Submitting…" : "Submit Rating"}
                   </Button>
-                </div>
+                </fetcher.Form>
               )}
             </div>
           </div>

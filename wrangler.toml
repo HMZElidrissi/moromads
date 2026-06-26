@@ -3,16 +3,27 @@ main = "./workers/app.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
+account_id = "ea43a09f675052beacb8efc9c48cc3be"
+
 assets = { directory = "./build/client" }
 
+# Non-secret vars (safe to commit).
+# Set the session secret via: wrangler secret put ADMIN_KEY
 [vars]
-ADMIN_KEY = "change-me-in-production"
+APP_URL = "https://moromads.ma"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "moromads"
-database_id = "placeholder"
+database_id = "0820201e-55da-404f-9a69-9c6a0297e7d4"
 
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "moromads-images"
+# Replace with your R2 bucket name (must exist before deploy):
+#   wrangler r2 bucket create moromads-images
+
+# ── Preview / local overrides ─────────────────────────────────────────────────
+[env.preview]
+name = "moromads-preview"
+vars = { APP_URL = "https://moromads-preview.workers.dev" }

@@ -7,7 +7,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   Zap,
   MapPin,
@@ -100,10 +100,27 @@ export type RootProps = React.ComponentProps<"div"> & {
 };
 
 function Root({ places, initialCity, className, children, ...props }: RootProps) {
-  const [filters, setFilters] = useState<Filters>({
-    ...DEFAULT_FILTERS,
-    city: initialCity ?? "All cities",
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters: Filters = {
+    city: searchParams.get("city") ?? initialCity ?? DEFAULT_FILTERS.city,
+    type: (searchParams.get("type") as Filters["type"]) ?? DEFAULT_FILTERS.type,
+    wifi: (searchParams.get("wifi") as Filters["wifi"]) ?? DEFAULT_FILTERS.wifi,
+    noise: (searchParams.get("noise") as Filters["noise"]) ?? DEFAULT_FILTERS.noise,
+    price: (searchParams.get("price") as Filters["price"]) ?? DEFAULT_FILTERS.price,
+    sort: (searchParams.get("sort") as Filters["sort"]) ?? DEFAULT_FILTERS.sort,
+  };
+
+  function setFilters(next: Filters) {
+    const params: Record<string, string> = {};
+    if (next.city !== DEFAULT_FILTERS.city) params.city = next.city;
+    if (next.type !== DEFAULT_FILTERS.type) params.type = next.type;
+    if (next.wifi !== DEFAULT_FILTERS.wifi) params.wifi = next.wifi;
+    if (next.noise !== DEFAULT_FILTERS.noise) params.noise = next.noise;
+    if (next.price !== DEFAULT_FILTERS.price) params.price = next.price;
+    if (next.sort !== DEFAULT_FILTERS.sort) params.sort = next.sort;
+    setSearchParams(params, { replace: true });
+  }
 
   const allCities = useMemo(
     () => ["All cities", ...Array.from(new Set(places.map((p) => p.city))).sort()],
@@ -187,7 +204,7 @@ function Filters({ className, ...props }: FiltersProps) {
       className={cn("sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm", className)}
       {...props}
     >
-      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-wrap items-center gap-4">
           <SlidersHorizontal size={18} className="text-gray-400 shrink-0" aria-hidden />
 
@@ -348,7 +365,7 @@ function Grid({ className, ...props }: GridProps) {
     <section
       data-slot="place-directory-grid"
       aria-label="Work spots"
-      className={cn("max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20", className)}
+      className={cn("max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20", className)}
       {...props}
     >
       {filtered.length === 0 ? (
@@ -443,7 +460,7 @@ function Item({ place, className, ...props }: ItemProps) {
       >
         {place.images?.[0] && !imgLoaded && (
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 -translate-x-full animate-card-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div className="absolute inset-0 -translate-x-full animate-card-shimmer bg-linear-to-r from-transparent via-white/20 to-transparent" />
           </div>
         )}
         {place.images?.[0] && (
@@ -599,7 +616,7 @@ function Item({ place, className, ...props }: ItemProps) {
         <Button className="relative overflow-hidden w-full rounded-2xl h-12 font-black text-sm uppercase tracking-widest bg-gray-900 hover:bg-primary transition-all group-hover:shadow-lg group-hover:shadow-primary/20">
           See Details
           <span
-            className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+            className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-300-to-r from-transparent via-white/10 to-transparent pointer-events-none"
             aria-hidden="true"
           />
         </Button>

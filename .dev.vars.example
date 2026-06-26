@@ -1,0 +1,8 @@
+# ── Cloudflare Workers local dev secrets ──────────────────────────────────────
+# Copy this file to .dev.vars (gitignored) and fill in the values.
+# wrangler reads .dev.vars automatically during `wrangler dev` / `vp dev`.
+# For production, set each value via: wrangler secret put <KEY>
+
+# Random secret used to sign session cookies (min 32 chars).
+# Generate one with: openssl rand -base64 32
+ADMIN_KEY=change-me-in-production
