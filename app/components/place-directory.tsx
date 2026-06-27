@@ -606,12 +606,7 @@ function Item({ place, className, ...props }: ItemProps) {
           )}
           {place.nonSmoking === true && (
             <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wide">
-              Non-smoking
-            </span>
-          )}
-          {place.nonSmoking === false && (
-            <span className="px-2 py-1 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-wide">
-              Smoking allowed
+              Non-smoking area
             </span>
           )}
         </div>

@@ -64,8 +64,8 @@
   },
   {
     "id": 8,
-    "name": "Taghazout",
-    "nameAr": "تاغازوت",
+    "name": "Taghazout/Tamraght",
+    "nameAr": "تاغازوت/تمراغت",
     "region": "Souss-Massa",
     "gradient": "linear-gradient(135deg, #0369a1 0%, #0ea5e9 60%, #34d399 100%)",
     "icon": "🏄",

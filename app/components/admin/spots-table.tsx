@@ -4,7 +4,7 @@ import { AlertCircle } from "lucide-react";
 import { DataTable } from "~/components/data-table/data-table";
 import { DataTableToolbar } from "~/components/data-table/data-table-toolbar";
 import { spotsColumns } from "~/components/data-table/spots-columns";
-import { useClientDataTable } from "~/hooks/use-client-data-table";
+import { useUrlDataTable } from "~/hooks/use-url-data-table";
 import type { DataTableOption } from "~/types/data-table";
 import type { Place } from "~/components/place-directory";
 import { Card } from "~/components/ui/card";
@@ -30,15 +30,13 @@ export function SpotsTable({ spots }: SpotsTableProps) {
     [cityOptions, deleteFetcher],
   );
 
-  const table = useClientDataTable({
+  const table = useUrlDataTable({
     data: spots,
     columns,
     getRowId: (row) => row.slug,
-    initialState: {
-      sorting: [{ id: "rating", desc: true }],
-      columnPinning: { right: ["actions"] },
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
+    prefix: "s_",
+    defaultSorting: [{ id: "rating", desc: true }],
+    columnPinning: { right: ["actions"] },
   });
 
   if (spots.length === 0) {

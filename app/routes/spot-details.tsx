@@ -187,17 +187,17 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
             {/* LEFT COLUMN: Visuals */}
             <div className="space-y-4">
               {/* Main image */}
-              <div className="relative aspect-4/3 rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
+              <div className="relative rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
                 {images[activeImg] ? (
                   <img
                     key={activeImg}
                     src={images[activeImg]!}
                     alt={`${spot.name} - View ${activeImg + 1}`}
-                    className="w-full h-full object-cover transition-opacity duration-300"
+                    className="w-full h-auto block transition-opacity duration-300"
                   />
                 ) : (
                   <div
-                    className="w-full h-full flex items-center justify-center text-white font-black text-4xl"
+                    className="w-full min-h-72 flex items-center justify-center text-white font-black text-4xl"
                     style={{ background: spot.gradient }}
                   >
                     {spot.name}

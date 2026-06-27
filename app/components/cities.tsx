@@ -85,8 +85,28 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
       <div className="absolute bottom-0 inset-x-0 p-6 space-y-4">
         <div>
           <div className="flex items-baseline gap-3">
-            <h3 className="font-black text-3xl text-white tracking-tighter">{city.name}</h3>
-            <span className="text-xl text-white/40 font-sans">{city.nameAr}</span>
+            <h3 className="font-black text-3xl text-white tracking-tighter leading-tight">
+              {city.name.includes("/") ? (
+                <>
+                  {city.name.split("/")[0]}
+                  <br />
+                  {city.name.split("/")[1].trim()}
+                </>
+              ) : (
+                city.name
+              )}
+            </h3>
+            <span className="text-xl text-white/40 font-sans leading-tight">
+              {city.nameAr?.includes("/") ? (
+                <>
+                  {city.nameAr.split("/")[0]}
+                  <br />
+                  {city.nameAr.split("/")[1].trim()}
+                </>
+              ) : (
+                city.nameAr
+              )}
+            </span>
           </div>
           <div className="flex items-center gap-1.5 text-white/50 text-[10px] font-black uppercase tracking-widest mt-1">
             <MapPin size={10} className="text-primary" />

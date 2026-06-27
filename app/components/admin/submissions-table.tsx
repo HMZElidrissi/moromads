@@ -3,7 +3,7 @@ import { useFetcher, useNavigation } from "react-router";
 import { DataTable } from "~/components/data-table/data-table";
 import { DataTableToolbar } from "~/components/data-table/data-table-toolbar";
 import { submissionsColumns } from "~/components/data-table/submissions-columns";
-import { useClientDataTable } from "~/hooks/use-client-data-table";
+import { useUrlDataTable } from "~/hooks/use-url-data-table";
 import type { DataTableOption } from "~/types/data-table";
 import type { Submission } from "~/lib/db.server";
 import { Card } from "~/components/ui/card";
@@ -50,16 +50,14 @@ export function SubmissionsTable({ pending, approved, rejected }: SubmissionsTab
     [cityOptions, rejectFetcher],
   );
 
-  const table = useClientDataTable({
+  const table = useUrlDataTable({
     data: allSubs,
     columns,
     getRowId: (row) => String(row.id),
-    initialState: {
-      sorting: [{ id: "submittedAt", desc: true }],
-      columnFilters: [{ id: "status", value: ["pending"] }],
-      columnPinning: { right: ["actions"] },
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
+    prefix: "x_",
+    defaultSorting: [{ id: "submittedAt", desc: true }],
+    defaultFilters: [{ id: "status", value: ["pending"] }],
+    columnPinning: { right: ["actions"] },
   });
 
   return (

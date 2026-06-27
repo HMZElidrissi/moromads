@@ -1,5 +1,5 @@
 import type { Route } from "./+types/admin";
-import { Form, redirect, useActionData, useNavigation } from "react-router";
+import { Form, Link, redirect, useActionData, useNavigation, useSearchParams } from "react-router";
 import {
   getAllSpots,
   getSubmissions,
@@ -24,7 +24,7 @@ import { Check, X, MapPin, Clock, LayoutGrid, PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { SpotsTable } from "~/components/admin/spots-table";
 import { SubmissionsTable } from "~/components/admin/submissions-table";
@@ -318,7 +318,17 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
-  const [tab, setTab] = useState<"spots" | "submissions" | "add">("spots");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = (searchParams.get("tab") as "spots" | "submissions" | "add") ?? "spots";
+  const setTab = (t: "spots" | "submissions" | "add") =>
+    setSearchParams(
+      (prev) => {
+        const p = new URLSearchParams(prev);
+        p.set("tab", t);
+        return p;
+      },
+      { replace: true },
+    );
   const prevNavState = useRef(navigation.state);
   const prevFormRef = useRef<string | null>(null);
 
@@ -456,10 +466,10 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="bg-background border-b border-border/70 px-6 h-14 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-70 transition-opacity">
           <LayoutGrid size={18} className="text-primary" />
           <span className="font-semibold text-foreground text-sm">Moromads Admin</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-3">
           {email && <span className="text-xs text-muted-foreground hidden sm:block">{email}</span>}
           <Form method="post" action="/admin/logout">

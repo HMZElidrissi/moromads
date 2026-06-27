@@ -22,7 +22,7 @@ const CITIES = [
   "Fez",
   "Agadir",
   "Mohammedia",
-  "Taghazout",
+  "Taghazout/Tamraght",
   "Essaouira",
   "Other",
 ];
