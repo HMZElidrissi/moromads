@@ -1,18 +1,16 @@
 import type { Route } from "./+types/about";
 import { Footer } from "~/components/footer";
 import { NomadHeader } from "~/components/nomad-header";
-import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
-import { ChevronLeft, Heart, Globe, Users, Zap } from "lucide-react";
+import { Heart, Globe, Users, Zap } from "lucide-react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return { origin: new URL(request.url).origin };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  const title = "About Moromads — Morocco's Digital Nomad Work Spot Directory";
+  const title = "About Moromads — Find the Best Work & Study Spots in Morocco";
   const description =
-    "Moromads maps the best cafés and coworking spaces for digital nomads across Morocco. Real WiFi data, verified spots, and a growing remote work community.";
+    "Moromads is a community-driven directory for remote workers, students, digital nomads, and focus-seekers in Morocco. Find cafés and coworking spaces with verified WiFi, noise, and comfort data.";
   const ogImage = `${loaderData.origin}/android-chrome-512x512.png`;
   return [
     { title },
@@ -36,28 +34,40 @@ export default function About() {
 
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <Button
-            size="lg"
-            asChild
-            className="rounded-full px-10 h-14 text-lg font-bold bg-[#622b14] hover:bg-[#4a2010] text-white shadow-lg shadow-[#622b14]/30 transition-all hover:scale-105 active:scale-95 mb-12"
-          >
-            <Link to="/">
-              <ChevronLeft size={20} className="mr-1" />
-              Back to exploration
-            </Link>
-          </Button>
-
           <div className="space-y-16">
-            {/* Mission */}
+            {/* Our Story */}
             <section className="space-y-6">
-              <h2 className="text-4xl font-black text-gray-900 tracking-tight">Our Mission</h2>
+              <h2 className="text-4xl font-black text-gray-900 tracking-tight">Our Story</h2>
               <p className="text-xl text-gray-500 leading-relaxed font-medium">
-                Moromads was born from a simple observation: Morocco is one of the most underrated
-                destinations for digital nomads, yet finding a reliable coworking space or café with
-                fast WiFi can be a real challenge. Our goal is to map every work-friendly spot in
-                the Kingdom — from coworking spaces in Casablanca to quiet cafés in Fez — and give
-                remote workers the data they actually need: real WiFi speeds, noise levels, and
-                honest comfort ratings.
+                Hi, this is Nada and Hamza! We started Moromads because we lived the struggle
+                firsthand. Our journey began back in our university days, huddled in quiet library
+                corners and crowded cafés trying to study. During our internship days, the hustle
+                didn't stop — we were constantly searching for spots with stable internet, decent
+                power outlets, and good coffee where we could actually focus.
+              </p>
+              <p className="text-xl text-gray-500 leading-relaxed font-medium">
+                Once we transitioned into remote work, we took our laptops on the road, constantly
+                changing cities across Morocco. Whether we were working from a coastal café in
+                Taghazout, a bustling space in Casablanca, or a quiet spot in Rabat, one question
+                always followed us:{" "}
+                <em>"Can I actually work from this café properly with a laptop?"</em>
+              </p>
+              <p className="text-xl text-gray-500 leading-relaxed font-medium">
+                Tired of showing up to places only to find out they don't welcome laptops, have no
+                power outlets, or are too noisy to focus, we decided to build Moromads. We coined
+                the term "Moromads" (Moroccan Nomads) to describe anyone like us: remote workers,
+                students, digital nomads, and focus-seekers who need a welcoming space to get things
+                done, wherever they are in the Kingdom.
+              </p>
+            </section>
+
+            {/* Our Mission */}
+            <section className="space-y-6">
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight">Our Mission</h2>
+              <p className="text-lg text-gray-500 leading-relaxed font-medium">
+                Our goal is to map every work-friendly spot in Morocco — from coworking spaces in
+                Casablanca to quiet cafés in Fez — and give fellow Moromads the data they actually
+                need: real WiFi speeds, noise levels, and honest comfort ratings.
               </p>
             </section>
 
@@ -69,8 +79,8 @@ export default function About() {
                 </div>
                 <h3 className="text-xl font-black text-gray-900">Built with Love</h3>
                 <p className="text-gray-500 font-medium leading-relaxed">
-                  We are locals and digital nomads who love this country. Every coworking space and
-                  café on Moromads is manually verified so you can work from Morocco with
+                  We are locals and remote professionals who love this country. Every workspace and
+                  café on Moromads is verified so you can study, focus, or work from Morocco with
                   confidence.
                 </p>
               </div>
@@ -80,9 +90,9 @@ export default function About() {
                 </div>
                 <h3 className="text-xl font-black text-gray-900">Community Driven</h3>
                 <p className="text-gray-500 font-medium leading-relaxed">
-                  Moromads is powered by Morocco's remote work community. By sharing your WiFi tests
-                  and reviews, you help thousands of digital nomads find their perfect spot across
-                  the Kingdom.
+                  Moromads is powered by Morocco's remote work, study, and nomad community. By
+                  sharing your WiFi tests and reviews, you help fellow Moromads find their perfect
+                  focus spot across the Kingdom.
                 </p>
               </div>
             </section>
@@ -102,12 +112,12 @@ export default function About() {
                   {
                     icon: <Users size={20} />,
                     title: "Accessibility",
-                    desc: "Helping digital nomads and remote workers find coworking spaces and cafés that genuinely welcome laptops.",
+                    desc: "Helping remote workers, students, digital nomads, and focus-seekers find coworking spaces and cafés that genuinely welcome laptops.",
                   },
                   {
                     icon: <Globe size={20} />,
                     title: "Local Impact",
-                    desc: "Supporting local businesses across Morocco by connecting them with a steady community of respectful remote workers and nomads.",
+                    desc: "Supporting local businesses across Morocco by connecting them with a steady community of respectful remote workers, students, digital nomads, and professionals.",
                   },
                 ].map((val, i) => (
                   <div key={i} className="flex gap-6 items-start">

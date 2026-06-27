@@ -83,7 +83,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     { property: "og:title", content: `${spot.name} — ${spot.city} | Moromads` },
     {
       property: "og:description",
-      content: `Verified work spot for digital nomads in ${spot.city}, Morocco.`,
+      content: `Verified workspace to focus, study, or work remotely in ${spot.city}, Morocco.`,
     },
     { property: "og:image", content: ogImage },
     { property: "og:url", content: pageUrl },
@@ -269,6 +269,15 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                   {
                     label: "Noise Score",
                     val: spot.noiseScoreLabel,
+                    subLabel: (
+                      {
+                        "5/5": "Very Calm",
+                        "4/5": "Calm",
+                        "3/5": "Moderate",
+                        "2/5": "Lively",
+                        "1/5": "Noisy",
+                      } as Record<string, string>
+                    )[spot.noiseScoreLabel],
                     icon: <Volume2 size={18} className="text-blue-500" />,
                   },
                   {
@@ -295,6 +304,9 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                     <div>{v.icon}</div>
                     <div>
                       <p className="text-base font-black text-gray-900">{v.val}</p>
+                      {"subLabel" in v && v.subLabel && (
+                        <p className="text-xs font-bold text-gray-600 mt-1">{v.subLabel}</p>
+                      )}
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">
                         {v.label}
                       </p>
@@ -415,7 +427,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                 <div>
                   <h3 className="text-base font-black text-gray-900">Been here?</h3>
                   <p className="text-sm text-gray-500 font-medium mt-0.5">
-                    Help other nomads — rate your experience.
+                    Help other moromads — rate your experience.
                   </p>
                 </div>
                 <Button
@@ -529,11 +541,6 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                           </p>
                         </div>
                       </div>
-                      {spot.airConditioned && (
-                        <span className="px-3 py-1 bg-sky-100 text-sky-600 text-[10px] font-black uppercase rounded-lg">
-                          Cooled
-                        </span>
-                      )}
                     </div>
                   )}
                 </div>
@@ -579,7 +586,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                 <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
                   Share Spot
                 </h3>
-                <p className="text-gray-500 font-medium">Spread the word to other nomads!</p>
+                <p className="text-gray-500 font-medium">Spread the word to fellow Moromads!</p>
               </div>
               <div className="space-y-3">
                 <button

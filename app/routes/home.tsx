@@ -12,9 +12,9 @@ import { ChevronLeft } from "lucide-react";
 import { useSearchParams } from "react-router";
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  const title = "Moromads — Best Coworking Spaces & Cafés for Digital Nomads in Morocco";
+  const title = "Moromads — Best Work & Study Cafés & Coworking Spaces in Morocco";
   const description =
-    "Find the best coworking spaces and cafés with fast WiFi for digital nomads across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more. Real WiFi speeds, noise levels, and verified reviews.";
+    "Find the best coworking spaces and cafés with fast WiFi to work, study, or co-work as a remote worker, student, or digital nomad across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more.";
   const ogImage = `${loaderData.origin}/android-chrome-512x512.png`;
   return [
     { title },
@@ -25,7 +25,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     {
       property: "og:description",
       content:
-        "Morocco's #1 directory for digital nomads. Verified cafés and coworking spaces with real WiFi data across every major city.",
+        "Morocco's #1 directory for remote workers, students, digital nomads, and focus-seekers. Verified cafés and coworking spaces with real WiFi data across every major city.",
     },
     { property: "og:image", content: ogImage },
     { property: "og:url", content: loaderData.origin },
@@ -81,7 +81,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     Work spots in <span className="text-primary">{selectedCity}</span>
                   </h2>
                   <p className="text-gray-500 mt-2 text-lg">
-                    Best cafés and coworking spaces for nomads in {selectedCity}
+                    Best cafés and coworking spaces to work and study in {selectedCity}
                   </p>
                 </div>
               </div>

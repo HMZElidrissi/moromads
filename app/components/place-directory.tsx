@@ -422,6 +422,14 @@ const noiseConfig: Record<NoiseLevel, { label: string; color: string; icon: stri
   lively: { label: "Lively", color: "text-orange-600 bg-orange-50", icon: "🔊" },
 };
 
+const noiseScoreInterpretation: Record<string, string> = {
+  "5/5": "Very Calm",
+  "4/5": "Calm",
+  "3/5": "Moderate",
+  "2/5": "Lively",
+  "1/5": "Noisy",
+};
+
 export type ItemProps = React.ComponentProps<"article"> & {
   place: Place;
 };
@@ -580,6 +588,9 @@ function Item({ place, className, ...props }: ItemProps) {
               <span>{noise.icon}</span>
               {place.noiseScoreLabel}
             </div>
+            <span className="text-[10px] font-semibold opacity-70 normal-case tracking-normal">
+              {noiseScoreInterpretation[place.noiseScoreLabel] ?? noise.label}
+            </span>
           </div>
           <div className="flex flex-col gap-1 p-3 rounded-2xl bg-gray-50 border border-transparent">
             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">

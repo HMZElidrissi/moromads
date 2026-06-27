@@ -22,8 +22,9 @@ export function AddPlaceCTA({ className, ...props }: AddPlaceCTAProps) {
               Know a coworking space or café we&apos;re missing?
             </h2>
             <p className="text-gray-500 text-base mb-8 max-w-xl mx-auto">
-              Help Morocco&apos;s digital nomad community by adding a work-friendly spot. Include
-              the WiFi speed, noise level, outlet count, and a photo — it takes 2 minutes.
+              Help the Moromads community — remote workers, students, digital nomads, and
+              focus-seekers in Morocco — by adding a work-friendly spot. Include the WiFi speed,
+              noise level, outlet count, and a photo — it takes 2 minutes.
             </p>
             <div className="flex justify-center">
               <Button asChild className="rounded-full px-8 h-12 text-base shadow-md">
