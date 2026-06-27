@@ -24,9 +24,9 @@ type Row = {
   non_smoking: number | null;
   air_conditioned: number | null;
   staff_score: number | null;
+  gradient: string;
   rating: number;
   review_count: number;
-  gradient: string;
   images: string;
   tags: string;
 };
@@ -62,13 +62,26 @@ function rowToPlace(row: Row): Place {
   };
 }
 
+const SPOT_SELECT = `
+  SELECT s.*,
+    COALESCE(ROUND(AVG((r.wifi_score + r.noise_score + r.comfort_score) / 3.0), 1), 0) AS rating,
+    COUNT(r.id) AS review_count
+  FROM spots s
+  LEFT JOIN reviews r ON r.spot_slug = s.slug
+`;
+
 export async function getAllSpots(db: D1Database): Promise<Place[]> {
-  const { results } = await db.prepare("SELECT * FROM spots ORDER BY rating DESC").all<Row>();
+  const { results } = await db
+    .prepare(`${SPOT_SELECT} GROUP BY s.id ORDER BY rating DESC`)
+    .all<Row>();
   return results.map(rowToPlace);
 }
 
 export async function getSpotBySlug(db: D1Database, slug: string): Promise<Place | null> {
-  const row = await db.prepare("SELECT * FROM spots WHERE slug = ?").bind(slug).first<Row>();
+  const row = await db
+    .prepare(`${SPOT_SELECT} WHERE s.slug = ? GROUP BY s.id`)
+    .bind(slug)
+    .first<Row>();
   return row ? rowToPlace(row) : null;
 }
 
@@ -239,8 +252,8 @@ export async function approveSubmission(
          (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
           noise_level, noise_score_label, comfort_score, comfort_score_label,
           espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
-          staff_score, rating, review_count, gradient, images, tags)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
+          staff_score, gradient, images, tags)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         slug,
@@ -312,8 +325,8 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
        (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
         noise_level, noise_score_label, comfort_score, comfort_score_label,
         espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
-        staff_score, rating, review_count, gradient, images, tags)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
+        staff_score, gradient, images, tags)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -426,20 +439,10 @@ export async function addReview(
   slug: string,
   scores: { wifi: number; noise: number; comfort: number; staff?: number | null },
 ): Promise<void> {
-  const avg = (scores.wifi + scores.noise + scores.comfort) / 3;
-  await db.batch([
-    db
-      .prepare(
-        "INSERT INTO reviews (spot_slug, wifi_score, noise_score, comfort_score, staff_score) VALUES (?, ?, ?, ?, ?)",
-      )
-      .bind(slug, scores.wifi, scores.noise, scores.comfort, scores.staff ?? null),
-    db
-      .prepare(
-        `UPDATE spots
-         SET rating       = ROUND((rating * review_count + ?) / (review_count + 1), 1),
-             review_count = review_count + 1
-         WHERE slug = ?`,
-      )
-      .bind(avg, slug),
-  ]);
+  await db
+    .prepare(
+      "INSERT INTO reviews (spot_slug, wifi_score, noise_score, comfort_score, staff_score) VALUES (?, ?, ?, ?, ?)",
+    )
+    .bind(slug, scores.wifi, scores.noise, scores.comfort, scores.staff ?? null)
+    .run();
 }

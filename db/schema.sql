@@ -20,8 +20,6 @@ CREATE TABLE IF NOT EXISTS spots (
   non_smoking    INTEGER,   -- 1 = true, 0 = false, NULL = unknown
   air_conditioned INTEGER,  -- 1 = true, 0 = false, NULL = unknown
   staff_score    INTEGER CHECK(staff_score BETWEEN 1 AND 5),
-  rating        REAL NOT NULL,
-  review_count  INTEGER NOT NULL,
   gradient      TEXT NOT NULL,
   images        TEXT NOT NULL DEFAULT '[]',  -- JSON array
   tags          TEXT NOT NULL DEFAULT '[]'   -- JSON array
