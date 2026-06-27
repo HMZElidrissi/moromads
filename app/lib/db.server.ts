@@ -22,6 +22,7 @@ type Row = {
   outlets_label: string;
   tpe: number | null;
   non_smoking: number | null;
+  air_conditioned: number | null;
   rating: number;
   review_count: number;
   gradient: string;
@@ -50,6 +51,7 @@ function rowToPlace(row: Row): Place {
     outletsLabel: row.outlets_label,
     tpe: row.tpe === null ? null : row.tpe === 1,
     nonSmoking: row.non_smoking === null ? null : row.non_smoking === 1,
+    airConditioned: row.air_conditioned === null ? null : row.air_conditioned === 1,
     rating: row.rating,
     reviewCount: row.review_count,
     gradient: row.gradient,
@@ -83,6 +85,7 @@ export type Submission = {
   priceRange: string | null;
   tpe: boolean | null;
   nonSmoking: boolean | null;
+  airConditioned: boolean | null;
   notes: string | null;
   submitterEmail: string | null;
   images: string[];
@@ -103,6 +106,7 @@ type SubmissionRow = {
   price_range: string | null;
   tpe: number | null;
   non_smoking: number | null;
+  air_conditioned: number | null;
   notes: string | null;
   submitter_email: string | null;
   images: string;
@@ -124,6 +128,7 @@ function rowToSubmission(row: SubmissionRow): Submission {
     priceRange: row.price_range,
     tpe: row.tpe === null ? null : row.tpe === 1,
     nonSmoking: row.non_smoking === null ? null : row.non_smoking === 1,
+    airConditioned: row.air_conditioned === null ? null : row.air_conditioned === 1,
     notes: row.notes,
     submitterEmail: row.submitter_email,
     images: JSON.parse(row.images) as string[],
@@ -140,8 +145,8 @@ export async function addSubmission(
     .prepare(
       `INSERT INTO spot_submissions
        (name, type, city, address, maps_url, wifi_mbps, timing, espresso_price,
-        price_range, tpe, non_smoking, notes, submitter_email, images)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        price_range, tpe, non_smoking, air_conditioned, notes, submitter_email, images)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       data.name,
@@ -155,6 +160,7 @@ export async function addSubmission(
       data.priceRange ?? null,
       data.tpe === null ? null : data.tpe ? 1 : 0,
       data.nonSmoking === null ? null : data.nonSmoking ? 1 : 0,
+      data.airConditioned === null ? null : data.airConditioned ? 1 : 0,
       data.notes ?? null,
       data.submitterEmail ?? null,
       JSON.stringify(data.images ?? []),
@@ -183,6 +189,7 @@ export type ApprovalDetails = {
   timing?: string;
   tpe?: boolean | null;
   nonSmoking?: boolean | null;
+  airConditioned?: boolean | null;
   espressoPrice?: number | null;
   gradient: string;
 };
@@ -228,9 +235,9 @@ export async function approveSubmission(
         `INSERT INTO spots
          (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
           noise_level, noise_score_label, comfort_score, comfort_score_label,
-          espresso_price, price_range, timing, outlets_label, tpe, non_smoking,
+          espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
           rating, review_count, gradient, images, tags)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
       )
       .bind(
         slug,
@@ -251,6 +258,7 @@ export async function approveSubmission(
         details.outletsLabel,
         details.tpe === null ? null : details.tpe ? 1 : 0,
         details.nonSmoking === null ? null : details.nonSmoking ? 1 : 0,
+        details.airConditioned === null ? null : details.airConditioned ? 1 : 0,
         details.gradient,
         JSON.stringify(sub.images.map((key) => `/images/${key}`)),
         tags,
@@ -278,6 +286,7 @@ export type NewSpot = {
   timing: string | null;
   tpe: boolean | null;
   nonSmoking: boolean | null;
+  airConditioned: boolean | null;
   gradient: string;
   images: string[];
 };
@@ -297,9 +306,9 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
       `INSERT INTO spots
        (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
         noise_level, noise_score_label, comfort_score, comfort_score_label,
-        espresso_price, price_range, timing, outlets_label, tpe, non_smoking,
+        espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
         rating, review_count, gradient, images, tags)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -320,6 +329,7 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
       data.outletsLabel,
       data.tpe === null ? null : data.tpe ? 1 : 0,
       data.nonSmoking === null ? null : data.nonSmoking ? 1 : 0,
+      data.airConditioned === null ? null : data.airConditioned ? 1 : 0,
       data.gradient,
       JSON.stringify(data.images.map((key) => `/images/${key}`)),
       tags,
@@ -348,7 +358,7 @@ export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void
          wifi_mbps = ?, wifi_speed_label = ?,
          noise_level = ?, noise_score_label = ?, comfort_score = ?, comfort_score_label = ?,
          espresso_price = ?, price_range = ?, timing = ?, outlets_label = ?,
-         tpe = ?, non_smoking = ?, gradient = ?, images = ?, tags = ?
+         tpe = ?, non_smoking = ?, air_conditioned = ?, gradient = ?, images = ?, tags = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -369,12 +379,17 @@ export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void
       data.outletsLabel,
       data.tpe === null ? null : data.tpe ? 1 : 0,
       data.nonSmoking === null ? null : data.nonSmoking ? 1 : 0,
+      data.airConditioned === null ? null : data.airConditioned ? 1 : 0,
       data.gradient,
       images,
       tags,
       data.slug,
     )
     .run();
+}
+
+export async function deleteSpot(db: D1Database, slug: string): Promise<void> {
+  await db.prepare("DELETE FROM spots WHERE slug = ?").bind(slug).run();
 }
 
 // ── Admin config ──────────────────────────────────────────────────────────────

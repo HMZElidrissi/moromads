@@ -1,17 +1,31 @@
+import type { Route } from "./+types/about";
 import { Footer } from "~/components/footer";
 import { NomadHeader } from "~/components/nomad-header";
 import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
 import { ChevronLeft, Heart, Globe, Users, Zap } from "lucide-react";
 
-export function meta() {
+export async function loader({ request }: Route.LoaderArgs) {
+  return { origin: new URL(request.url).origin };
+}
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  const title = "About Moromads — Morocco's Digital Nomad Work Spot Directory";
+  const description =
+    "Moromads maps the best cafés and coworking spaces for digital nomads across Morocco. Real WiFi data, verified spots, and a growing remote work community.";
+  const ogImage = `${loaderData.origin}/android-chrome-512x512.png`;
   return [
-    { title: "About Moromads — Morocco's Digital Nomad Work Spot Directory" },
-    {
-      name: "description",
-      content:
-        "Moromads maps the best cafés and coworking spaces for digital nomads across Morocco. Real WiFi data, verified spots, and a growing remote work community.",
-    },
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:site_name", content: "Moromads" },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:image", content: ogImage },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: ogImage },
   ];
 }
 

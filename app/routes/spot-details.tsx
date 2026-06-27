@@ -26,10 +26,11 @@ import { useState } from "react";
 import { useFetcher } from "react-router";
 import { NotFoundContent } from "./not-found";
 
-export async function loader({ params, context }: Route.LoaderArgs) {
+export async function loader({ params, request, context }: Route.LoaderArgs) {
   const { env } = context.get(cloudflareContext);
   const spot = await getSpotBySlug(env.DB, params.slug ?? "");
-  return { spot };
+  const origin = new URL(request.url).origin;
+  return { spot, origin };
 }
 
 export async function action({ params, request, context }: Route.ActionArgs) {
@@ -56,7 +57,7 @@ export async function action({ params, request, context }: Route.ActionArgs) {
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  const spot = loaderData?.spot;
+  const { spot, origin } = loaderData;
   if (!spot) {
     return [
       { title: "Spot Not Found | Moromads" },
@@ -64,18 +65,27 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ];
   }
 
+  const title = `${spot.name} | Work Spot in ${spot.city} | Moromads`;
+  const description = `Work from ${spot.name} in ${spot.city}. WiFi: ${spot.wifiMbps} Mbps, Noise: ${spot.noiseScoreLabel}, Comfort: ${spot.comfortScoreLabel}. Find the best places to work from in Morocco.`;
+  const ogImage = `${origin}/android-chrome-512x512.png`;
+  const pageUrl = `${origin}/spots/${spot.slug}`;
+
   return [
-    { title: `${spot.name} | Work Spot in ${spot.city} | Moromads` },
-    {
-      name: "description",
-      content: `Work from ${spot.name} in ${spot.city}. WiFi: ${spot.wifiMbps} Mbps, Noise: ${spot.noiseScoreLabel}, Comfort: ${spot.comfortScoreLabel}. Find the best places to work from in Morocco.`,
-    },
-    { property: "og:title", content: `${spot.name} - ${spot.city} | Moromads` },
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "article" },
+    { property: "og:site_name", content: "Moromads" },
+    { property: "og:title", content: `${spot.name} — ${spot.city} | Moromads` },
     {
       property: "og:description",
       content: `Verified work spot for digital nomads in ${spot.city}, Morocco.`,
     },
-    { property: "og:image", content: spot.images?.[0] || "" },
+    { property: "og:image", content: ogImage },
+    { property: "og:url", content: pageUrl },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: `${spot.name} — ${spot.city}` },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: ogImage },
   ];
 }
 
@@ -466,6 +476,29 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                       {spot.nonSmoking && (
                         <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black uppercase rounded-lg">
                           Clean air
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {spot.airConditioned !== undefined && spot.airConditioned !== null && (
+                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
+                          <Wind size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-500">
+                            Air Conditioning
+                          </p>
+                          <p className="text-lg font-black text-gray-900">
+                            {spot.airConditioned ? "A/C available" : "No A/C"}
+                          </p>
+                        </div>
+                      </div>
+                      {spot.airConditioned && (
+                        <span className="px-3 py-1 bg-sky-100 text-sky-600 text-[10px] font-black uppercase rounded-lg">
+                          Cooled
                         </span>
                       )}
                     </div>

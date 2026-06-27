@@ -19,13 +19,17 @@ const CITIES = [
 ];
 
 export function meta() {
+  const title = "Add a Spot | Moromads";
+  const description =
+    "Know a great café or coworking space in Morocco? Submit it to the Moromads directory.";
   return [
-    { title: "Add a Spot | Moromads" },
-    {
-      name: "description",
-      content:
-        "Know a great café or coworking space in Morocco? Submit it to the Moromads directory.",
-    },
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:site_name", content: "Moromads" },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { name: "twitter:card", content: "summary" },
   ];
 }
 
@@ -75,6 +79,12 @@ export async function action({ request, context }: Route.ActionArgs) {
     tpe: form.get("tpe") === "1" ? true : form.get("tpe") === "0" ? false : null,
     nonSmoking:
       form.get("non_smoking") === "1" ? true : form.get("non_smoking") === "0" ? false : null,
+    airConditioned:
+      form.get("air_conditioned") === "1"
+        ? true
+        : form.get("air_conditioned") === "0"
+          ? false
+          : null,
     notes: str("notes") || null,
     submitterEmail: str("email") || null,
     images: imageKeys,
@@ -307,6 +317,20 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                   </label>
                   <select
                     name="non_smoking"
+                    defaultValue=""
+                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  >
+                    <option value="">Unknown</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
+                    Air Conditioning?
+                  </label>
+                  <select
+                    name="air_conditioned"
                     defaultValue=""
                     className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                   >

@@ -16,8 +16,9 @@ CREATE TABLE IF NOT EXISTS spots (
   price_range     TEXT NOT NULL,
   timing          TEXT,
   outlets_label   TEXT NOT NULL,
-  tpe         INTEGER,   -- 1 = true, 0 = false, NULL = unknown
-  non_smoking INTEGER,   -- 1 = true, 0 = false, NULL = unknown
+  tpe            INTEGER,   -- 1 = true, 0 = false, NULL = unknown
+  non_smoking    INTEGER,   -- 1 = true, 0 = false, NULL = unknown
+  air_conditioned INTEGER,  -- 1 = true, 0 = false, NULL = unknown
   rating        REAL NOT NULL,
   review_count  INTEGER NOT NULL,
   gradient      TEXT NOT NULL,
@@ -52,6 +53,7 @@ CREATE TABLE IF NOT EXISTS spot_submissions (
   price_range     TEXT,
   tpe             INTEGER,
   non_smoking     INTEGER,
+  air_conditioned INTEGER,
   notes           TEXT,
   submitter_email TEXT,
   images          TEXT NOT NULL DEFAULT '[]',

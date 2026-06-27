@@ -11,31 +11,36 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useSearchParams } from "react-router";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ loaderData }: Route.MetaArgs) {
+  const title = "Moromads — Best Coworking Spaces & Cafés for Digital Nomads in Morocco";
+  const description =
+    "Find the best coworking spaces and cafés with fast WiFi for digital nomads across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more. Real WiFi speeds, noise levels, and verified reviews.";
+  const ogImage = `${loaderData.origin}/android-chrome-512x512.png`;
   return [
-    { title: "Moromads — Best Coworking Spaces & Cafés for Digital Nomads in Morocco" },
-    {
-      name: "description",
-      content:
-        "Find the best coworking spaces and cafés with fast WiFi for digital nomads across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more. Real WiFi speeds, noise levels, and verified reviews.",
-    },
-    {
-      property: "og:title",
-      content: "Moromads — Best Coworking Spaces & Cafés for Digital Nomads in Morocco",
-    },
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:site_name", content: "Moromads" },
+    { property: "og:title", content: title },
     {
       property: "og:description",
       content:
         "Morocco's #1 directory for digital nomads. Verified cafés and coworking spaces with real WiFi data across every major city.",
     },
+    { property: "og:image", content: ogImage },
+    { property: "og:url", content: loaderData.origin },
     { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: ogImage },
   ];
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
   const { env } = context.get(cloudflareContext);
   const spots = await getAllSpots(env.DB);
-  return { spots };
+  const origin = new URL(request.url).origin;
+  return { spots, origin };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {

@@ -46,6 +46,7 @@ export type Place = {
   outletsLabel: string;
   tpe?: boolean | null;
   nonSmoking?: boolean | null;
+  airConditioned?: boolean | null;
   rating: number;
   reviewCount: number;
   gradient: string;

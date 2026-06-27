@@ -27,7 +27,7 @@ export function AddPlaceCTA({ className, ...props }: AddPlaceCTAProps) {
             </p>
             <div className="flex justify-center">
               <Button asChild className="rounded-full px-8 h-12 text-base shadow-md">
-                <a href="/add-place">
+                <a href="/add-spot">
                   <PlusCircle size={18} className="mr-2" />
                   Add a place
                 </a>

@@ -22,7 +22,7 @@ export function Footer({ className, ...props }: FooterProps) {
           aria-label="Footer"
           className="flex items-center gap-8 text-sm font-bold text-gray-400"
         >
-          <Link to="/add-place" className="hover:text-gray-900 transition-colors">
+          <Link to="/add-spot" className="hover:text-gray-900 transition-colors">
             Add a place
           </Link>
           <Link to="/about" className="hover:text-gray-900 transition-colors">
