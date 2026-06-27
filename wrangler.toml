@@ -7,10 +7,9 @@ account_id = "ea43a09f675052beacb8efc9c48cc3be"
 
 assets = { directory = "./build/client" }
 
-# Non-secret vars (safe to commit).
 # Set the session secret via: wrangler secret put ADMIN_KEY
 [vars]
-APP_URL = "https://moromads.ma"
+APP_URL = "https://moromads.hmzelidrissi.ma"
 
 [[d1_databases]]
 binding = "DB"
