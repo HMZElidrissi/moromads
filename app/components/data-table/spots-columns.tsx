@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Building2, Ellipsis, MapPin, Star, Wifi } from "lucide-react";
+import { Link } from "react-router";
 
 import type { Place } from "~/components/place-directory";
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
@@ -62,7 +63,13 @@ export function spotsColumns({
       header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
       cell: ({ row }) => (
         <div>
-          <p className="font-medium text-foreground">{row.original.name}</p>
+          <Link
+            to={`/spots/${row.original.slug}`}
+            target="_blank"
+            className="font-medium text-foreground hover:text-primary hover:underline transition-colors"
+          >
+            {row.original.name}
+          </Link>
           <p className="text-xs text-muted-foreground">/spots/{row.original.slug}</p>
         </div>
       ),
