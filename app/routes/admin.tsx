@@ -1,11 +1,5 @@
 import type { Route } from "./+types/admin";
-import { Form, redirect, useActionData, useNavigation, useFetcher } from "react-router";
-import { DataTable } from "~/components/data-table/data-table";
-import { DataTableToolbar } from "~/components/data-table/data-table-toolbar";
-import { spotsColumns } from "~/components/data-table/spots-columns";
-import { submissionsColumns } from "~/components/data-table/submissions-columns";
-import { useClientDataTable } from "~/hooks/use-client-data-table";
-import type { DataTableOption } from "~/types/data-table";
+import { Form, redirect, useActionData, useNavigation } from "react-router";
 import {
   getAllSpots,
   getSubmissions,
@@ -26,30 +20,16 @@ import {
   createDbSession,
   getSessionUser,
 } from "~/lib/auth.server";
-import type { Place } from "~/components/place-directory";
-import { Check, X, MapPin, Clock, AlertCircle, PlusCircle, LayoutGrid } from "lucide-react";
+import { Check, X, MapPin, Clock, LayoutGrid, PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-
-const GRADIENTS = [
-  { label: "Sunset", value: "linear-gradient(135deg, #e07b39 0%, #c1272d 100%)" },
-  { label: "Ocean", value: "linear-gradient(135deg, #1b4f8b 0%, #2563eb 100%)" },
-  { label: "Forest", value: "linear-gradient(135deg, #065f46 0%, #10b981 100%)" },
-  { label: "Violet", value: "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)" },
-  { label: "Amber", value: "linear-gradient(135deg, #b45309 0%, #f59e0b 100%)" },
-  { label: "Rose", value: "linear-gradient(135deg, #be185d 0%, #f472b6 100%)" },
-];
+import { SpotsTable } from "~/components/admin/spots-table";
+import { SubmissionsTable } from "~/components/admin/submissions-table";
+import { AddSpotForm } from "~/components/admin/add-spot-form";
+import { Field } from "~/components/admin/shared";
 
 export function meta() {
   return [{ title: "Admin | Moromads" }];
@@ -93,7 +73,6 @@ export async function action({ request, context }: Route.ActionArgs) {
   const intent = (form.get("intent") as string) ?? "";
 
   if (intent === "setup") {
-    // Only allowed when no admin users exist yet
     if (await hasAnyAdminUser(env.DB)) {
       return { ok: false, error: "Setup already complete." };
     }
@@ -165,6 +144,7 @@ export async function action({ request, context }: Route.ActionArgs) {
           : form.get("air_conditioned") === "0"
             ? false
             : null,
+      staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
       espressoPrice: form.get("espresso_price") ? Number(form.get("espresso_price")) : null,
     });
 
@@ -233,6 +213,7 @@ export async function action({ request, context }: Route.ActionArgs) {
           : form.get("air_conditioned") === "0"
             ? false
             : null,
+      staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
       images: imageKeys,
     });
 
@@ -304,6 +285,7 @@ export async function action({ request, context }: Route.ActionArgs) {
           : form.get("air_conditioned") === "0"
             ? false
             : null,
+      staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
       keepImages: form.getAll("keep_image") as string[],
       appendImages: appendKeys,
     });
@@ -321,864 +303,15 @@ export async function action({ request, context }: Route.ActionArgs) {
   return { ok: false, error: "Unknown intent" };
 }
 
-// ── Inline spot edit form (used inside table row) ──────────────────────────────
-
-function WifiField({ defaultMbps, required }: { defaultMbps?: number | null; required?: boolean }) {
-  const [wifiMbps, setWifiMbps] = useState(defaultMbps != null ? String(defaultMbps) : "");
-  return (
-    <div className="col-span-2 space-y-1.5">
-      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        WiFi Speed{required && " *"}
-      </label>
-      <div className="grid grid-cols-2 gap-4">
-        <Select onValueChange={(t) => setWifiMbps(wifiTierToMbps(t))}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Quality…" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="slow">Slow</SelectItem>
-            <SelectItem value="ok">OK</SelectItem>
-            <SelectItem value="fast">Fast</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input
-          name="wifi_mbps"
-          type="number"
-          min="1"
-          required={required}
-          placeholder="Exact Mbps (optional)"
-          value={wifiMbps}
-          onChange={(e) => setWifiMbps(e.target.value)}
-        />
-      </div>
-      {WIFI_HINT}
-    </div>
-  );
-}
-
-function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
-  const [keptImages, setKeptImages] = useState<string[]>(spot.images ?? []);
-  const fetcher = useFetcher<typeof action>();
-  const busy = fetcher.state !== "idle";
-  const prevFetcherState = useRef(fetcher.state);
-  const [priceRange, setPriceRange] = useState<string>(spot.priceRange);
-
-  useEffect(() => {
-    if (prevFetcherState.current !== "idle" && fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.ok === true) {
-        toast.success("Spot updated");
-        onClose();
-      } else if (fetcher.data.ok === false && "error" in fetcher.data) {
-        toast.error(fetcher.data.error);
-      }
-    }
-    prevFetcherState.current = fetcher.state;
-  }, [fetcher.state, fetcher.data, onClose]);
-
-  return (
-    <fetcher.Form
-      method="post"
-      encType="multipart/form-data"
-      className="bg-muted/30 border-t border-border/50 p-6 space-y-5"
-    >
-      <input type="hidden" name="intent" value="update-spot" />
-      <input type="hidden" name="slug" value={spot.slug} />
-
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-        Basic Info
-      </p>
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Name *">
-          <Input name="name" required defaultValue={spot.name} />
-        </Field>
-        <Field label="Type *">
-          <Select name="type" required defaultValue={spot.type}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="café">Café</SelectItem>
-              <SelectItem value="coworking">Coworking</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="City *">
-          <Input name="city" required defaultValue={spot.city} />
-        </Field>
-        <Field label="Address *">
-          <Input name="address" required defaultValue={spot.address} />
-        </Field>
-        <Field label="Google Maps URL">
-          <Input name="maps_url" type="url" defaultValue={spot.mapsUrl} />
-        </Field>
-        <Field label="Opening Hours">
-          <Input
-            name="timing"
-            defaultValue={spot.timing ?? ""}
-            placeholder="Mon–Sat: 08:00 – 22:00"
-          />
-        </Field>
-      </div>
-
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground pt-1">
-        Technical Details
-      </p>
-      <div className="grid grid-cols-2 gap-4">
-        <WifiField defaultMbps={spot.wifiMbps} required />
-        <Field label="Comfort Score (1–5) *">
-          <Select name="comfort_score" required defaultValue={String(spot.comfortScore)}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Noise Level *">
-          <Select name="noise_level" required defaultValue={spot.noiseLevel}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="quiet">Quiet</SelectItem>
-              <SelectItem value="moderate">Moderate</SelectItem>
-              <SelectItem value="lively">Lively</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Air Conditioning?">
-          <Select
-            name="air_conditioned"
-            defaultValue={spot.airConditioned === null ? "" : spot.airConditioned ? "1" : "0"}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Espresso Price (MAD)">
-          <Input
-            name="espresso_price"
-            type="number"
-            min="0"
-            step="0.5"
-            defaultValue={spot.espressoPrice ?? ""}
-            onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val) && val > 0) setPriceRange(espressoToRange(val));
-            }}
-          />
-        </Field>
-        <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
-          <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="$">Budget</SelectItem>
-              <SelectItem value="$$">Mid-range</SelectItem>
-              <SelectItem value="$$$">Premium</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Power Outlets *">
-          <Select name="outlets_label" required defaultValue={spot.outletsLabel}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Yes">Yes</SelectItem>
-              <SelectItem value="Limited">Limited</SelectItem>
-              <SelectItem value="No">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Vibe *">
-          <Select name="gradient" required defaultValue={spot.gradient}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {GRADIENTS.map((g) => (
-                <SelectItem key={g.value} value={g.value}>
-                  {g.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="TPE / Card Payment">
-          <Select name="tpe" defaultValue={spot.tpe === null ? "" : spot.tpe ? "1" : "0"}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Non-smoking area?" className="col-span-2">
-          <Select
-            name="non_smoking"
-            defaultValue={spot.nonSmoking === null ? "" : spot.nonSmoking ? "1" : "0"}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-      </div>
-
-      {spot.images && spot.images.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Current photos ({keptImages.length}/{spot.images.length})
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {spot.images.map((src) => {
-              const kept = keptImages.includes(src);
-              return (
-                <div key={src} className="relative w-20 h-20 shrink-0 group">
-                  <div
-                    className={cn(
-                      "w-full h-full rounded-xl overflow-hidden border-2 transition-all",
-                      kept ? "border-border opacity-100" : "border-destructive opacity-40",
-                    )}
-                  >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setKeptImages((prev) =>
-                        kept ? prev.filter((u) => u !== src) : [...prev, src],
-                      )
-                    }
-                    className={cn(
-                      "absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold transition-all shadow",
-                      kept
-                        ? "bg-muted-foreground/50 opacity-0 group-hover:opacity-100"
-                        : "bg-destructive opacity-100",
-                    )}
-                    aria-label={kept ? "Remove photo" : "Restore photo"}
-                  >
-                    {kept ? <X size={10} /> : <Check size={10} />}
-                  </button>
-                  {kept && <input type="hidden" name="keep_image" value={src} />}
-                </div>
-              );
-            })}
-          </div>
-          {keptImages.length < spot.images.length && (
-            <p className="text-xs text-destructive font-medium">
-              {spot.images.length - keptImages.length} photo
-              {spot.images.length - keptImages.length > 1 ? "s" : ""} will be removed on save.
-            </p>
-          )}
-        </div>
-      )}
-
-      <Field label="Add Photos">
-        <input name="images" type="file" multiple accept="image/*" className={fileCls} />
-      </Field>
-
-      <div className="flex items-center gap-3">
-        <Button
-          type="submit"
-          disabled={busy}
-          className="h-10 px-6 rounded-lg bg-foreground hover:bg-primary text-background font-semibold text-sm transition-all disabled:opacity-50"
-        >
-          {busy ? "Saving…" : "Save Changes"}
-        </Button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="h-10 px-4 rounded-lg border border-border text-muted-foreground text-sm hover:bg-muted/50 transition-all"
-        >
-          Cancel
-        </button>
-      </div>
-    </fetcher.Form>
-  );
-}
-
-// ── Add spot form ──────────────────────────────────────────────────────────────
-
-function AddSpotForm() {
-  const [priceRange, setPriceRange] = useState("");
-  const navigation = useNavigation();
-  const busy = navigation.state !== "idle";
-
-  return (
-    <div className="space-y-5">
-      <Form method="post" encType="multipart/form-data" className="space-y-5">
-        <input type="hidden" name="intent" value="create-spot" />
-
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          Basic Info
-        </p>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Name *">
-            <Input name="name" required placeholder="Café Boavista" />
-          </Field>
-          <Field label="Type *">
-            <Select name="type" required defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="café">Café</SelectItem>
-                <SelectItem value="coworking">Coworking</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="City *">
-            <Input name="city" required placeholder="Casablanca" />
-          </Field>
-          <Field label="Address *">
-            <Input name="address" required placeholder="12 Rue Hassan II" />
-          </Field>
-          <Field label="Google Maps URL">
-            <Input name="maps_url" type="url" placeholder="https://maps.google.com/…" />
-          </Field>
-          <Field label="Opening Hours">
-            <Input name="timing" placeholder="Mon–Sat: 08:00 – 22:00" />
-          </Field>
-        </div>
-
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground pt-1">
-          Technical Details
-        </p>
-
-        <div className="grid grid-cols-2 gap-4">
-          <WifiField required />
-          <Field label="Comfort Score (1–5) *">
-            <Select name="comfort_score" required defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <SelectItem key={n} value={String(n)}>
-                    {n}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Noise Level *">
-            <Select name="noise_level" required defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="quiet">Quiet</SelectItem>
-                <SelectItem value="moderate">Moderate</SelectItem>
-                <SelectItem value="lively">Lively</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Air Conditioning?">
-            <Select name="air_conditioned" defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Unknown</SelectItem>
-                <SelectItem value="1">Yes</SelectItem>
-                <SelectItem value="0">No</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Espresso Price (MAD)">
-            <Input
-              name="espresso_price"
-              type="number"
-              min="0"
-              step="0.5"
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                if (!isNaN(val) && val > 0) setPriceRange(espressoToRange(val));
-              }}
-            />
-          </Field>
-          <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
-            <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="$">Budget</SelectItem>
-                <SelectItem value="$$">Mid-range</SelectItem>
-                <SelectItem value="$$$">Premium</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Power Outlets *">
-            <Select name="outlets_label" required defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Yes">Yes</SelectItem>
-                <SelectItem value="Limited">Limited</SelectItem>
-                <SelectItem value="No">No</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Vibe *">
-            <Select name="gradient" required defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select…" />
-              </SelectTrigger>
-              <SelectContent>
-                {GRADIENTS.map((g) => (
-                  <SelectItem key={g.value} value={g.value}>
-                    {g.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="TPE / Card Payment">
-            <Select name="tpe" defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Unknown</SelectItem>
-                <SelectItem value="1">Yes</SelectItem>
-                <SelectItem value="0">No</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Non-smoking area?" className="col-span-2">
-            <Select name="non_smoking" defaultValue="">
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Unknown</SelectItem>
-                <SelectItem value="1">Yes</SelectItem>
-                <SelectItem value="0">No</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-        </div>
-
-        <Field label="Photos (optional)">
-          <input name="images" type="file" multiple accept="image/*" className={fileCls} />
-        </Field>
-
-        <Button
-          type="submit"
-          disabled={busy}
-          className="h-10 px-6 rounded-lg bg-foreground hover:bg-primary text-background font-semibold text-sm transition-all disabled:opacity-50"
-        >
-          {busy ? "Creating…" : "Create Spot"}
-        </Button>
-      </Form>
-    </div>
-  );
-}
-
-const fileCls =
-  "w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-foreground file:text-background hover:file:bg-primary file:transition-all";
-
-function espressoToRange(mad: number): "$" | "$$" | "$$$" {
-  if (mad <= 20) return "$";
-  if (mad <= 35) return "$$";
-  return "$$$";
-}
-
-function wifiTierToMbps(tier: string): string {
-  if (tier === "slow") return "10";
-  if (tier === "ok") return "30";
-  if (tier === "fast") return "75";
-  return "";
-}
-
-const WIFI_HINT = (
-  <ul className="mt-1 space-y-0.5 text-xs text-foreground/60">
-    <li>· Slow — under 20 Mbps (emails, basic browsing)</li>
-    <li>· OK — 20–49 Mbps (video calls, light work)</li>
-    <li>· Fast — 50+ Mbps (smooth remote work, uploads)</li>
-  </ul>
-);
-
-const PRICE_RANGE_HINT = (
-  <ul className="mt-1 space-y-0.5 text-xs text-foreground/60">
-    <li>· Budget — espresso ≤ 20 MAD</li>
-    <li>· Mid-range — espresso 21–35 MAD</li>
-    <li>· Premium — espresso &gt; 35 MAD</li>
-  </ul>
-);
-
-const fieldCls =
-  "w-full h-10 rounded-lg border border-border px-3 text-foreground text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
-
-function Field({
-  label,
-  children,
-  hint,
-  className,
-}: {
-  label: string;
-  children: React.ReactNode;
-  hint?: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("space-y-1", className)}>
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-        {label}
-      </label>
-      {children}
-      {hint}
-    </div>
-  );
-}
-
-// ── Spots TanStack Table ───────────────────────────────────────────────────────
-
-function SpotsTable({ spots }: { spots: Place[] }) {
-  const deleteFetcher = useFetcher();
-
-  const cityOptions = useMemo<DataTableOption[]>(
-    () => [...new Set(spots.map((s) => s.city))].sort().map((c) => ({ label: c, value: c })),
-    [spots],
-  );
-
-  const columns = useMemo(
-    () =>
-      spotsColumns({
-        cityOptions,
-        onDelete: (slug) =>
-          deleteFetcher.submit({ intent: "delete-spot", slug }, { method: "post" }),
-      }),
-    [cityOptions, deleteFetcher],
-  );
-
-  const table = useClientDataTable({
-    data: spots,
-    columns,
-    getRowId: (row) => row.slug,
-    initialState: {
-      sorting: [{ id: "rating", desc: true }],
-      columnPinning: { right: ["actions"] },
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
-  });
-
-  if (spots.length === 0) {
-    return (
-      <Card>
-        <div className="flex flex-col items-center gap-3 py-20 text-center">
-          <AlertCircle className="size-8 text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">
-            No spots yet. Add one from the "Add Spot" tab.
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="flex w-full flex-col gap-2.5 overflow-auto">
-      <DataTableToolbar table={table} />
-      <DataTable
-        pageSizeOptions={[5, 10, 20, 50]}
-        table={table}
-        renderSubComponent={({ row }) => (
-          <SpotEditForm spot={row.original} onClose={() => row.toggleExpanded(false)} />
-        )}
-      />
-    </div>
-  );
-}
-
-// ── Submissions TanStack Table ─────────────────────────────────────────────────
-
-function ApprovalForm({
-  sub,
-  onClose,
-  busy,
-}: {
-  sub: Submission;
-  onClose: () => void;
-  busy: boolean;
-}) {
-  const [priceRange, setPriceRange] = useState<string>(sub.priceRange ?? "");
-  return (
-    <Form method="post" className="p-6 space-y-5">
-      <input type="hidden" name="intent" value="approve" />
-      <input type="hidden" name="id" value={sub.id} />
-      <input type="hidden" name="submission_json" value={JSON.stringify(sub)} />
-
-      <div className="flex items-center gap-3 pb-1">
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-foreground">{sub.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {sub.city} · {sub.address}
-            {sub.submitterEmail && ` · ${sub.submitterEmail}`}
-          </p>
-          {sub.notes && (
-            <p className="text-xs text-muted-foreground/70 italic mt-0.5">"{sub.notes}"</p>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="h-7 px-3 rounded-lg border border-border text-muted-foreground text-xs font-medium hover:border-destructive hover:text-destructive transition-all"
-        >
-          Cancel
-        </button>
-      </div>
-
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-        Fill in technical details to publish
-      </p>
-
-      <div className="grid grid-cols-2 gap-4">
-        <WifiField defaultMbps={sub.wifiMbps} required />
-        <Field label="Comfort Score (1–5) *">
-          <Select name="comfort_score" required defaultValue="">
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Noise Level *">
-          <Select name="noise_level" required defaultValue="">
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="quiet">Quiet</SelectItem>
-              <SelectItem value="moderate">Moderate</SelectItem>
-              <SelectItem value="lively">Lively</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Air Conditioning?">
-          <Select
-            name="air_conditioned"
-            defaultValue={sub.airConditioned === null ? "" : sub.airConditioned ? "1" : "0"}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Espresso Price (MAD)">
-          <Input
-            name="espresso_price"
-            type="number"
-            min="0"
-            step="0.5"
-            defaultValue={sub.espressoPrice ?? ""}
-            onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val) && val > 0) setPriceRange(espressoToRange(val));
-            }}
-          />
-        </Field>
-        <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
-          <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="$">Budget</SelectItem>
-              <SelectItem value="$$">Mid-range</SelectItem>
-              <SelectItem value="$$$">Premium</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Power Outlets *">
-          <Select name="outlets_label" required defaultValue="">
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Yes">Yes</SelectItem>
-              <SelectItem value="Limited">Limited</SelectItem>
-              <SelectItem value="No">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Vibe *">
-          <Select name="gradient" required defaultValue="">
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select…" />
-            </SelectTrigger>
-            <SelectContent>
-              {GRADIENTS.map((g) => (
-                <SelectItem key={g.value} value={g.value}>
-                  {g.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="TPE / Card Payment">
-          <Select name="tpe" defaultValue={sub.tpe === null ? "" : sub.tpe ? "1" : "0"}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Non-smoking area?" className="col-span-2">
-          <Select
-            name="non_smoking"
-            defaultValue={sub.nonSmoking === null ? "" : sub.nonSmoking ? "1" : "0"}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-      </div>
-
-      {!sub.mapsUrl && (
-        <Field label="Google Maps URL">
-          <input name="maps_url" type="url" className={fieldCls} />
-        </Field>
-      )}
-      {!sub.timing && (
-        <Field label="Opening Hours">
-          <input name="timing" placeholder="Mon–Sat: 08:00 – 22:00" className={fieldCls} />
-        </Field>
-      )}
-
-      <Button
-        type="submit"
-        disabled={busy}
-        className="h-10 px-6 rounded-lg bg-foreground hover:bg-primary text-background font-semibold text-sm transition-all disabled:opacity-50"
-      >
-        {busy ? "Publishing…" : "Publish Spot"}
-      </Button>
-    </Form>
-  );
-}
-
-function SubmissionsTable({
-  pending,
-  approved,
-  rejected,
-}: {
-  pending: Submission[];
-  approved: Submission[];
-  rejected: Submission[];
-}) {
-  const navigation = useNavigation();
-  const busy = navigation.state !== "idle";
-  const rejectFetcher = useFetcher();
-  const [approvingSub, setApprovingSub] = useState<Submission | null>(null);
-  const prevNavState = useRef(navigation.state);
-
-  useEffect(() => {
-    if (prevNavState.current !== "idle" && navigation.state === "idle") {
-      setApprovingSub(null);
-    }
-    prevNavState.current = navigation.state;
-  }, [navigation.state]);
-
-  const allSubs = useMemo(
-    () => [...pending, ...approved, ...rejected],
-    [pending, approved, rejected],
-  );
-
-  const cityOptions = useMemo<DataTableOption[]>(
-    () => [...new Set(allSubs.map((s) => s.city))].sort().map((c) => ({ label: c, value: c })),
-    [allSubs],
-  );
-
-  const columns = useMemo(
-    () =>
-      submissionsColumns({
-        cityOptions,
-        onApprove: (sub) => setApprovingSub(sub),
-        onReject: (id) =>
-          rejectFetcher.submit({ intent: "reject", id: String(id) }, { method: "post" }),
-      }),
-    [cityOptions, rejectFetcher],
-  );
-
-  const table = useClientDataTable({
-    data: allSubs,
-    columns,
-    getRowId: (row) => String(row.id),
-    initialState: {
-      sorting: [{ id: "submittedAt", desc: true }],
-      columnFilters: [{ id: "status", value: ["pending"] }],
-      columnPinning: { right: ["actions"] },
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
-  });
-
-  return (
-    <div className="flex w-full flex-col gap-2.5 overflow-auto">
-      <DataTableToolbar table={table} />
-      <DataTable pageSizeOptions={[5, 10, 20, 50]} table={table} />
-      {approvingSub && (
-        <Card className="mt-2 overflow-hidden p-0 gap-0">
-          <div className="px-5 py-4 border-b border-border/70">
-            <p className="text-sm font-semibold text-foreground">Approve: {approvingSub.name}</p>
-          </div>
-          <ApprovalForm sub={approvingSub} onClose={() => setApprovingSub(null)} busy={busy} />
-        </Card>
-      )}
-    </div>
-  );
-}
-
 const ACTION_LABELS: Record<string, string> = {
   approve: "Submission approved",
   reject: "Submission rejected",
   "create-spot": "Spot created",
   "delete-spot": "Spot deleted",
 };
+
+const inputCls =
+  "w-full h-12 rounded-xl border border-border px-4 text-foreground font-medium placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-background";
 
 export default function Admin({ loaderData }: Route.ComponentProps) {
   const { authed, firstRun, email, pending, approved, rejected, spots } = loaderData;
@@ -1203,9 +336,6 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
   }, [navigation.state, actionData, authed]);
 
   if (!authed) {
-    const inputCls =
-      "w-full h-12 rounded-xl border border-border px-4 text-foreground font-medium placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-background";
-
     if (firstRun) {
       return (
         <div className="min-h-screen bg-muted/30 flex items-center justify-center p-6">
@@ -1309,7 +439,6 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  // ── Authed dashboard ────────────────────────────────────────────────────────
   const tabBtn = (t: typeof tab, label: string) => (
     <button
       onClick={() => setTab(t)}
@@ -1326,7 +455,6 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
       <header className="bg-background border-b border-border/70 px-6 h-14 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <LayoutGrid size={18} className="text-primary" />
@@ -1346,7 +474,6 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-        {/* Page title */}
         <div className="space-y-1">
           <p className="text-xs font-medium text-primary uppercase tracking-widest">
             moromads control center
@@ -1354,7 +481,6 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
         </div>
 
-        {/* Stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "Live Spots", value: spots.length, icon: MapPin, color: "text-primary" },
@@ -1374,7 +500,6 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="bg-muted/50 rounded-xl p-1 inline-flex gap-1">
           {tabBtn("spots", `Spots (${spots.length})`)}
           {tabBtn(
@@ -1384,15 +509,12 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
           {tabBtn("add", "Add Spot")}
         </div>
 
-        {/* Spots tab — TanStack Table */}
         {tab === "spots" && <SpotsTable spots={spots} />}
 
-        {/* Submissions tab */}
         {tab === "submissions" && (
           <SubmissionsTable pending={pending} approved={approved} rejected={rejected} />
         )}
 
-        {/* Add Spot tab */}
         {tab === "add" && (
           <Card>
             <CardHeader>

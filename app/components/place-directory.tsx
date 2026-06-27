@@ -46,6 +46,7 @@ export type Place = {
   tpe?: boolean | null;
   nonSmoking?: boolean | null;
   airConditioned?: boolean | null;
+  staffScore?: number | null;
   rating: number;
   reviewCount: number;
   gradient: string;

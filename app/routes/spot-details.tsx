@@ -20,6 +20,7 @@ import {
   X,
   CreditCard,
   Wind,
+  Users,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useState } from "react";
@@ -39,6 +40,8 @@ export async function action({ params, request, context }: Route.ActionArgs) {
   const wifi = Number(form.get("wifi"));
   const noise = Number(form.get("noise"));
   const comfort = Number(form.get("comfort"));
+  const staffRaw = form.get("staff");
+  const staff = staffRaw ? Number(staffRaw) : null;
   if (
     !Number.isInteger(wifi) ||
     wifi < 1 ||
@@ -48,11 +51,12 @@ export async function action({ params, request, context }: Route.ActionArgs) {
     noise > 5 ||
     !Number.isInteger(comfort) ||
     comfort < 1 ||
-    comfort > 5
+    comfort > 5 ||
+    (staff !== null && (!Number.isInteger(staff) || staff < 1 || staff > 5))
   ) {
     return { ok: false, error: "Invalid scores" };
   }
-  await addReview(env.DB, params.slug ?? "", { wifi, noise, comfort });
+  await addReview(env.DB, params.slug ?? "", { wifi, noise, comfort, staff });
   return { ok: true };
 }
 
@@ -100,8 +104,8 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
 
   // Rating State
   const fetcher = useFetcher<typeof action>();
-  const [ratings, setRatings] = useState({ wifi: 0, noise: 0, comfort: 0 });
-  const [hoverRatings, setHoverRatings] = useState({ wifi: 0, noise: 0, comfort: 0 });
+  const [ratings, setRatings] = useState({ wifi: 0, noise: 0, comfort: 0, staff: 0 });
+  const [hoverRatings, setHoverRatings] = useState({ wifi: 0, noise: 0, comfort: 0, staff: 0 });
   const hasRated = fetcher.data?.ok === true;
   const isSubmitting = fetcher.state === "submitting";
 
@@ -146,7 +150,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
 
   const handleModalClose = () => {
     setShowRateModal(false);
-    if (hasRated) setRatings({ wifi: 0, noise: 0, comfort: 0 });
+    if (hasRated) setRatings({ wifi: 0, noise: 0, comfort: 0, staff: 0 });
   };
 
   return (
@@ -237,7 +241,12 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
               )}
 
               {/* Vitals Summary Grid */}
-              <div className="grid grid-cols-3 gap-3">
+              <div
+                className={cn(
+                  "grid gap-3",
+                  spot.staffScore != null ? "grid-cols-4" : "grid-cols-3",
+                )}
+              >
                 {[
                   {
                     label: "WiFi Speed",
@@ -254,6 +263,17 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                     val: spot.comfortScoreLabel,
                     icon: <Star size={18} className="text-primary fill-primary" />,
                   },
+                  ...(spot.staffScore != null
+                    ? [
+                        {
+                          label: "Staff",
+                          val: ["", "Poor", "OK", "Good", "Very Good", "Excellent"][
+                            spot.staffScore
+                          ],
+                          icon: <Users size={18} className="text-violet-500" />,
+                        },
+                      ]
+                    : []),
                 ].map((v) => (
                   <div
                     key={v.label}
@@ -413,11 +433,6 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                         </p>
                       </div>
                     </div>
-                    {spot.outletsLabel && spot.outletsLabel.toLowerCase().startsWith("yes") && (
-                      <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black uppercase rounded-lg">
-                        Verified
-                      </span>
-                    )}
                   </div>
 
                   <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
@@ -435,7 +450,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                   </div>
 
                   {spot.tpe !== undefined && spot.tpe !== null && (
-                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
+                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center gap-4">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                           <CreditCard size={20} />
@@ -449,34 +464,40 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                           </p>
                         </div>
                       </div>
-                      {spot.tpe && (
-                        <span className="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] font-black uppercase rounded-lg">
-                          Yes
-                        </span>
-                      )}
                     </div>
                   )}
 
                   {spot.nonSmoking !== undefined && spot.nonSmoking !== null && (
-                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center justify-between">
+                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center gap-4">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary">
                           <Wind size={20} />
                         </div>
                         <div>
                           <p className="text-xs font-black uppercase tracking-widest text-gray-500">
-                            Smoking
+                            Non-smoking area
                           </p>
                           <p className="text-lg font-black text-gray-900">
-                            {spot.nonSmoking ? "Non-smoking area" : "Smoking allowed"}
+                            {spot.nonSmoking ? "Yes" : "No"}
                           </p>
                         </div>
                       </div>
-                      {spot.nonSmoking && (
-                        <span className="px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black uppercase rounded-lg">
-                          Clean air
-                        </span>
-                      )}
+                    </div>
+                  )}
+
+                  {spot.staffScore != null && (
+                    <div className="p-6 rounded-2xl bg-gray-50 flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shrink-0">
+                        <Users size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-500">
+                          Staff Friendliness
+                        </p>
+                        <p className="text-lg font-black text-gray-900">
+                          {["", "Poor", "OK", "Good", "Very Good", "Excellent"][spot.staffScore]}
+                        </p>
+                      </div>
                     </div>
                   )}
 
@@ -620,6 +641,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                       { id: "wifi", label: "WiFi Quality", icon: <Wifi /> },
                       { id: "noise", label: "Noise Level", icon: <Volume2 /> },
                       { id: "comfort", label: "Seat Comfort", icon: <Star /> },
+                      { id: "staff", label: "Staff Friendliness", icon: <Users /> },
                     ] as const
                   ).map((criteria) => (
                     <div key={criteria.id} className="space-y-3">
@@ -628,10 +650,16 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                           {criteria.label}
                         </span>
                         <span className="text-xs font-black text-primary">
-                          {ratings[criteria.id] > 0 ? `${ratings[criteria.id]}/5` : "Rate"}
+                          {ratings[criteria.id] > 0
+                            ? ["", "Poor", "OK", "Good", "Very Good", "Excellent"][
+                                ratings[criteria.id]
+                              ]
+                            : "Rate"}
                         </span>
                       </div>
-                      <input type="hidden" name={criteria.id} value={ratings[criteria.id]} />
+                      {ratings[criteria.id] > 0 && (
+                        <input type="hidden" name={criteria.id} value={ratings[criteria.id]} />
+                      )}
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button

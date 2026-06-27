@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS spots (
   tpe            INTEGER,   -- 1 = true, 0 = false, NULL = unknown
   non_smoking    INTEGER,   -- 1 = true, 0 = false, NULL = unknown
   air_conditioned INTEGER,  -- 1 = true, 0 = false, NULL = unknown
+  staff_score    INTEGER CHECK(staff_score BETWEEN 1 AND 5),
   rating        REAL NOT NULL,
   review_count  INTEGER NOT NULL,
   gradient      TEXT NOT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   wifi_score    INTEGER NOT NULL CHECK(wifi_score    BETWEEN 1 AND 5),
   noise_score   INTEGER NOT NULL CHECK(noise_score   BETWEEN 1 AND 5),
   comfort_score INTEGER NOT NULL CHECK(comfort_score BETWEEN 1 AND 5),
+  staff_score   INTEGER          CHECK(staff_score   BETWEEN 1 AND 5),
   created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 

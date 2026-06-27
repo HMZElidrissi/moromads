@@ -23,6 +23,7 @@ type Row = {
   tpe: number | null;
   non_smoking: number | null;
   air_conditioned: number | null;
+  staff_score: number | null;
   rating: number;
   review_count: number;
   gradient: string;
@@ -52,6 +53,7 @@ function rowToPlace(row: Row): Place {
     tpe: row.tpe === null ? null : row.tpe === 1,
     nonSmoking: row.non_smoking === null ? null : row.non_smoking === 1,
     airConditioned: row.air_conditioned === null ? null : row.air_conditioned === 1,
+    staffScore: row.staff_score ?? null,
     rating: row.rating,
     reviewCount: row.review_count,
     gradient: row.gradient,
@@ -190,6 +192,7 @@ export type ApprovalDetails = {
   tpe?: boolean | null;
   nonSmoking?: boolean | null;
   airConditioned?: boolean | null;
+  staffScore?: number | null;
   espressoPrice?: number | null;
   gradient: string;
 };
@@ -202,7 +205,7 @@ function wifiLabel(mbps: number): string {
   return "Very Poor";
 }
 
-const noiseScore: Record<string, string> = { quiet: "1/5", moderate: "3/5", lively: "5/5" };
+const noiseScore: Record<string, string> = { quiet: "5/5", moderate: "3/5", lively: "1/5" };
 const comfortLabel = (s: number) => `${s}/5`;
 
 function toSlug(name: string): string {
@@ -236,8 +239,8 @@ export async function approveSubmission(
          (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
           noise_level, noise_score_label, comfort_score, comfort_score_label,
           espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
-          rating, review_count, gradient, images, tags)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
+          staff_score, rating, review_count, gradient, images, tags)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
       )
       .bind(
         slug,
@@ -259,6 +262,7 @@ export async function approveSubmission(
         details.tpe === null ? null : details.tpe ? 1 : 0,
         details.nonSmoking === null ? null : details.nonSmoking ? 1 : 0,
         details.airConditioned === null ? null : details.airConditioned ? 1 : 0,
+        details.staffScore ?? null,
         details.gradient,
         JSON.stringify(sub.images.map((key) => `/images/${key}`)),
         tags,
@@ -287,6 +291,7 @@ export type NewSpot = {
   tpe: boolean | null;
   nonSmoking: boolean | null;
   airConditioned: boolean | null;
+  staffScore: number | null;
   gradient: string;
   images: string[];
 };
@@ -307,8 +312,8 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
        (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
         noise_level, noise_score_label, comfort_score, comfort_score_label,
         espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
-        rating, review_count, gradient, images, tags)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
+        staff_score, rating, review_count, gradient, images, tags)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -330,6 +335,7 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
       data.tpe === null ? null : data.tpe ? 1 : 0,
       data.nonSmoking === null ? null : data.nonSmoking ? 1 : 0,
       data.airConditioned === null ? null : data.airConditioned ? 1 : 0,
+      data.staffScore ?? null,
       data.gradient,
       JSON.stringify(data.images.map((key) => `/images/${key}`)),
       tags,
@@ -358,7 +364,7 @@ export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void
          wifi_mbps = ?, wifi_speed_label = ?,
          noise_level = ?, noise_score_label = ?, comfort_score = ?, comfort_score_label = ?,
          espresso_price = ?, price_range = ?, timing = ?, outlets_label = ?,
-         tpe = ?, non_smoking = ?, air_conditioned = ?, gradient = ?, images = ?, tags = ?
+         tpe = ?, non_smoking = ?, air_conditioned = ?, staff_score = ?, gradient = ?, images = ?, tags = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -380,6 +386,7 @@ export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void
       data.tpe === null ? null : data.tpe ? 1 : 0,
       data.nonSmoking === null ? null : data.nonSmoking ? 1 : 0,
       data.airConditioned === null ? null : data.airConditioned ? 1 : 0,
+      data.staffScore ?? null,
       data.gradient,
       images,
       tags,
@@ -417,15 +424,15 @@ export async function setAdminConfig(db: D1Database, key: string, value: string)
 export async function addReview(
   db: D1Database,
   slug: string,
-  scores: { wifi: number; noise: number; comfort: number },
+  scores: { wifi: number; noise: number; comfort: number; staff?: number | null },
 ): Promise<void> {
   const avg = (scores.wifi + scores.noise + scores.comfort) / 3;
   await db.batch([
     db
       .prepare(
-        "INSERT INTO reviews (spot_slug, wifi_score, noise_score, comfort_score) VALUES (?, ?, ?, ?)",
+        "INSERT INTO reviews (spot_slug, wifi_score, noise_score, comfort_score, staff_score) VALUES (?, ?, ?, ?, ?)",
       )
-      .bind(slug, scores.wifi, scores.noise, scores.comfort),
+      .bind(slug, scores.wifi, scores.noise, scores.comfort, scores.staff ?? null),
     db
       .prepare(
         `UPDATE spots
