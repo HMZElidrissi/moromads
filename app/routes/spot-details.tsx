@@ -6,6 +6,7 @@ import { Footer } from "~/components/footer";
 import { Button } from "~/components/ui/button";
 import {
   ChevronLeft,
+  ChevronRight,
   MapPin,
   Wifi,
   Volume2,
@@ -182,11 +183,11 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
 
       <main className="flex-1 pt-32 pb-20">
         <div className="max-w-[90rem] mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12">
             {/* LEFT COLUMN: Visuals */}
             <div className="space-y-4">
               {/* Main image */}
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
                 {images[activeImg] ? (
                   <img
                     key={activeImg}
@@ -204,15 +205,27 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                 )}
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                {/* Badge */}
-                <div className="absolute top-6 left-6">
-                  <div className="bg-white/90 backdrop-blur-md px-5 py-2 rounded-xl shadow-lg flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-black uppercase tracking-widest text-gray-900">
-                      Verified {spot.type}
-                    </span>
-                  </div>
-                </div>
+                {/* Prev / Next arrows */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveImg((i) => (i - 1 + images.length) % images.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveImg((i) => (i + 1) % images.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Thumbnail strip */}
@@ -224,7 +237,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                       onClick={() => setActiveImg(i)}
                       aria-label={`View image ${i + 1}`}
                       className={cn(
-                        "flex-1 aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all",
+                        "w-16 h-12 shrink-0 rounded-lg overflow-hidden border-2 transition-all",
                         activeImg === i
                           ? "border-primary shadow-md shadow-primary/20 opacity-100"
                           : "border-transparent opacity-50 hover:opacity-80",

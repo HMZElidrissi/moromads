@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
-import { Check, X } from "lucide-react";
+import { Check, X, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -30,6 +30,7 @@ export type SpotEditFormProps = {
 
 export function SpotEditForm({ spot, onClose }: SpotEditFormProps) {
   const [keptImages, setKeptImages] = useState<string[]>(spot.images ?? []);
+  const [mainImage, setMainImage] = useState<string>(spot.images?.[0] ?? "");
   const fetcher = useFetcher<AdminActionResult>();
   const busy = fetcher.state !== "idle";
   const prevFetcherState = useRef(fetcher.state);
@@ -239,28 +240,54 @@ export function SpotEditForm({ spot, onClose }: SpotEditFormProps) {
       {spot.images && spot.images.length > 0 && (
         <div className="space-y-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Current photos ({keptImages.length}/{spot.images.length})
+            Current photos ({keptImages.length}/{spot.images.length}) · Star to set cover
           </p>
           <div className="flex flex-wrap gap-2">
             {spot.images.map((src) => {
               const kept = keptImages.includes(src);
+              const isMain = kept && src === mainImage;
               return (
                 <div key={src} className="relative w-20 h-20 shrink-0 group">
                   <div
                     className={cn(
                       "w-full h-full rounded-xl overflow-hidden border-2 transition-all",
-                      kept ? "border-border opacity-100" : "border-destructive opacity-40",
+                      isMain
+                        ? "border-amber-400"
+                        : kept
+                          ? "border-border opacity-100"
+                          : "border-destructive opacity-40",
                     )}
                   >
                     <img src={src} alt="" className="w-full h-full object-cover" />
                   </div>
+                  {/* Star button — set as cover */}
+                  {kept && (
+                    <button
+                      type="button"
+                      onClick={() => setMainImage(src)}
+                      className={cn(
+                        "absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all shadow",
+                        isMain
+                          ? "bg-amber-400 text-white opacity-100"
+                          : "bg-muted text-muted-foreground opacity-0 group-hover:opacity-100",
+                      )}
+                      aria-label="Set as cover photo"
+                    >
+                      <Star size={10} fill={isMain ? "currentColor" : "none"} />
+                    </button>
+                  )}
+                  {/* Remove/restore button */}
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
                       setKeptImages((prev) =>
                         kept ? prev.filter((u) => u !== src) : [...prev, src],
-                      )
-                    }
+                      );
+                      if (kept && src === mainImage) {
+                        const next = keptImages.find((u) => u !== src);
+                        setMainImage(next ?? "");
+                      }
+                    }}
                     className={cn(
                       "absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold transition-all shadow",
                       kept
@@ -271,11 +298,17 @@ export function SpotEditForm({ spot, onClose }: SpotEditFormProps) {
                   >
                     {kept ? <X size={10} /> : <Check size={10} />}
                   </button>
-                  {kept && <input type="hidden" name="keep_image" value={src} />}
                 </div>
               );
             })}
           </div>
+          {/* Hidden inputs — main image first so it becomes images[0] */}
+          {keptImages
+            .slice()
+            .sort((a, b) => (a === mainImage ? -1 : b === mainImage ? 1 : 0))
+            .map((src) => (
+              <input key={src} type="hidden" name="keep_image" value={src} />
+            ))}
           {keptImages.length < spot.images.length && (
             <p className="text-xs text-destructive font-medium">
               {spot.images.length - keptImages.length} photo

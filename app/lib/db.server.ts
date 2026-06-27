@@ -64,7 +64,16 @@ function rowToPlace(row: Row): Place {
 
 const SPOT_SELECT = `
   SELECT s.*,
-    COALESCE(ROUND(AVG((r.wifi_score + r.noise_score + r.comfort_score) / 3.0), 1), 0) AS rating,
+    ROUND((
+      (CASE WHEN s.wifi_mbps >= 80 THEN 5.0
+            WHEN s.wifi_mbps >= 40 THEN 4.0
+            WHEN s.wifi_mbps >= 15 THEN 3.0
+            WHEN s.wifi_mbps >= 5  THEN 2.0
+            ELSE 1.0 END +
+       CASE s.noise_level WHEN 'quiet' THEN 5.0 WHEN 'moderate' THEN 3.0 ELSE 1.0 END +
+       s.comfort_score) / 3.0
+      + COALESCE(SUM((r.wifi_score + r.noise_score + r.comfort_score) / 3.0), 0)
+    ) / (1.0 + COUNT(r.id)), 1) AS rating,
     COUNT(r.id) AS review_count
   FROM spots s
   LEFT JOIN reviews r ON r.spot_slug = s.slug
