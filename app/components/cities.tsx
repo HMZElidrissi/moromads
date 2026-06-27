@@ -44,7 +44,7 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
         setOffset({ x: 0, y: 0 });
       }}
       onClick={() => onClick(city.name)}
-      className="group relative block text-left w-full aspect-[4/5] rounded-4xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+      className="group relative block text-left w-full aspect-4/5 rounded-4xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
     >
       {/* City Photo Background */}
       <div className="absolute inset-0 bg-gray-200">
@@ -58,7 +58,7 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
           }}
         />
         {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-black/10" />
         <div
           className="absolute inset-0 opacity-40 mix-blend-overlay transition-opacity group-hover:opacity-20"
           style={{ background: city.gradient }}
@@ -161,7 +161,7 @@ export function Cities({ onClickCity, className, ...props }: CitiesProps) {
 
   return (
     <section className={cn("py-20 bg-cream", className)} {...props}>
-      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>

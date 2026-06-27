@@ -176,7 +176,7 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center">
+        <div className="max-w-360 mx-auto px-6 h-20 flex items-center">
           <Link
             to="/"
             className="flex items-center gap-2 group text-gray-400 hover:text-gray-900 transition-colors"

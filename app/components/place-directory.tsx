@@ -298,7 +298,7 @@ function Filters({ className, ...props }: FiltersProps) {
 
           {/* Sort */}
           <Select value={filters.sort} onValueChange={(val) => set("sort", val as Filters["sort"])}>
-            <SelectTrigger className="ml-auto h-10 min-h-10 pl-4 pr-4 text-sm font-bold text-gray-900 bg-white border-2 border-gray-100 hover:border-gray-200 rounded-full cursor-pointer transition-all hover:border-primary/30 focus:ring-0 focus-visible:ring-0 shadow-none select-none">
+            <SelectTrigger className="ml-auto h-10 min-h-10 pl-4 pr-4 text-sm font-bold text-gray-900 bg-white border-2 border-gray-100 rounded-full cursor-pointer transition-all hover:border-primary/30 focus:ring-0 focus-visible:ring-0 shadow-none select-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent
