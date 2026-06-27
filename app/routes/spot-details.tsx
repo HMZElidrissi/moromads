@@ -157,7 +157,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-360 mx-auto px-6 h-20 flex items-center justify-between">
           <Link
             to={`/?city=${encodeURIComponent(spot.city)}`}
             className="flex items-center gap-2 group text-gray-400 hover:text-gray-900 transition-colors"
@@ -182,12 +182,12 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
       </header>
 
       <main className="flex-1 pt-32 pb-20">
-        <div className="max-w-[90rem] mx-auto px-6">
+        <div className="max-w-360 mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12">
             {/* LEFT COLUMN: Visuals */}
             <div className="space-y-4">
               {/* Main image */}
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
+              <div className="relative aspect-4/3 rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
                 {images[activeImg] ? (
                   <img
                     key={activeImg}
@@ -307,7 +307,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
               {spot.espressoPrice && (
                 <div
                   className={cn(
-                    "relative overflow-hidden rounded-[2rem] px-8 py-5 flex items-center justify-between gap-6",
+                    "relative overflow-hidden rounded-4xl px-8 py-5 flex items-center justify-between gap-6",
                     priceConfig[spot.priceRange].bg,
                   )}
                 >
@@ -334,7 +334,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                   <div className="flex items-center gap-4 shrink-0 z-10">
                     <div
                       className={cn(
-                        "w-11 h-11 rounded-full bg-gradient-to-br shadow-md flex items-center justify-center",
+                        "w-11 h-11 rounded-full bg-linear-to-br shadow-md flex items-center justify-center",
                         priceConfig[spot.priceRange].coin,
                       )}
                     >
