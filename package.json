@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "wrangler d1 execute moromads --local --file=db/schema.sql 2>/dev/null && wrangler d1 execute moromads --local --file=db/seed.sql 2>/dev/null; react-router dev",
+    "dev": "react-router dev",
+    "db:migrate:remote": "wrangler d1 execute moromads --remote --file=db/schema.sql",
+    "db:seed:remote": "wrangler d1 execute moromads --remote --file=db/seed.sql",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "prepare": "vp config || true"

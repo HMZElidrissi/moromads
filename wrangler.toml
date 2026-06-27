@@ -15,10 +15,13 @@ APP_URL = "https://moromads.hmzelidrissi.ma"
 binding = "DB"
 database_name = "moromads"
 database_id = "0820201e-55da-404f-9a69-9c6a0297e7d4"
+remote = true
+
 
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "moromads-images"
+remote = true
 # Replace with your R2 bucket name (must exist before deploy):
 #   wrangler r2 bucket create moromads-images
 
