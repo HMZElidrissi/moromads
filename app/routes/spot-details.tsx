@@ -1,5 +1,5 @@
 import type { Route } from "./+types/spot-details";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { getSpotBySlug, addReview } from "~/lib/db.server";
 import { cloudflareContext } from "../../load-context";
 import { Footer } from "~/components/footer";

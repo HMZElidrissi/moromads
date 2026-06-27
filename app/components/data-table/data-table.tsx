@@ -72,7 +72,10 @@ export function DataTable<TData>({
                   </TableRow>
                   {row.getIsExpanded() && renderSubComponent && (
                     <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={row.getVisibleCells().length} className="p-0">
+                      <TableCell
+                        colSpan={row.getVisibleCells().length}
+                        className="p-0 whitespace-normal"
+                      >
                         {renderSubComponent({ row })}
                       </TableCell>
                     </TableRow>
