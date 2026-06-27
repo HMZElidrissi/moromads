@@ -1,9 +1,18 @@
 import type { Route } from "./+types/add-spot";
+import React, { useState } from "react";
 import { Form, Link, useActionData, useNavigation } from "react-router";
 import { addSubmission } from "~/lib/db.server";
 import { cloudflareContext } from "../../load-context";
 import { ChevronLeft, Check } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 const CITIES = [
   "Casablanca",
@@ -93,10 +102,53 @@ export async function action({ request, context }: Route.ActionArgs) {
   return { ok: true };
 }
 
+function espressoToRange(mad: number): "$" | "$$" | "$$$" {
+  if (mad <= 20) return "$";
+  if (mad <= 35) return "$$";
+  return "$$$";
+}
+
+function wifiTierToMbps(tier: string): string {
+  if (tier === "slow") return "10";
+  if (tier === "ok") return "30";
+  if (tier === "fast") return "75";
+  return "";
+}
+
+const inputCls =
+  "h-14 rounded-2xl border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus-visible:ring-primary/30 focus-visible:border-primary";
+const selectCls =
+  "h-14 w-full rounded-2xl border-gray-200 px-5 text-gray-900 font-medium focus:ring-primary/30 focus:border-primary";
+
+function Field({
+  label,
+  required,
+  hint,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  hint?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-black uppercase tracking-widest text-gray-600">
+        {label}
+        {required && <span className="text-primary"> *</span>}
+      </label>
+      {children}
+      {hint}
+    </div>
+  );
+}
+
 export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submitting = navigation.state === "submitting";
+  const [priceRange, setPriceRange] = useState("");
+  const [wifiMbps, setWifiMbps] = useState("");
 
   if (actionData?.ok) {
     return (
@@ -156,82 +208,60 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                 Basic Info
               </h2>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Spot Name <span className="text-primary">*</span>
-                </label>
-                <input
+              <Field label="Spot Name" required>
+                <Input
                   name="name"
                   required
                   placeholder="e.g. Cloud Coffee Lab"
-                  className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    Type <span className="text-primary">*</span>
-                  </label>
-                  <select
-                    name="type"
-                    required
-                    defaultValue=""
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value="" disabled>
-                      Select type
-                    </option>
-                    <option value="café">Café</option>
-                    <option value="coworking">Coworking</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    City <span className="text-primary">*</span>
-                  </label>
-                  <select
-                    name="city"
-                    required
-                    defaultValue=""
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value="" disabled>
-                      Select city
-                    </option>
-                    {CITIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Field label="Type" required>
+                  <Select name="type" required defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="café">Café</SelectItem>
+                      <SelectItem value="coworking">Coworking</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="City" required>
+                  <Select name="city" required defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CITIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Address <span className="text-primary">*</span>
-                </label>
-                <input
+              <Field label="Address" required>
+                <Input
                   name="address"
                   required
                   placeholder="Street address or area"
-                  className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Google Maps Link
-                </label>
-                <input
+              <Field label="Google Maps Link">
+                <Input
                   name="maps_url"
                   type="url"
                   placeholder="https://maps.app.goo.gl/..."
-                  className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
             </section>
 
             {/* Details */}
@@ -240,106 +270,123 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                 Details (optional but helpful)
               </h2>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    WiFi Speed (Mbps)
-                  </label>
-                  <input
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
+                  WiFi Speed
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <Select onValueChange={(t) => setWifiMbps(wifiTierToMbps(t))}>
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Quality…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="slow">Slow</SelectItem>
+                      <SelectItem value="ok">OK</SelectItem>
+                      <SelectItem value="fast">Fast</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
                     name="wifi_mbps"
                     type="number"
-                    min="0"
-                    step="1"
-                    placeholder="e.g. 50"
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    min="1"
+                    placeholder="Exact Mbps (optional)"
+                    value={wifiMbps}
+                    onChange={(e) => setWifiMbps(e.target.value)}
+                    className={inputCls}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    Price Range
-                  </label>
-                  <select
-                    name="price_range"
-                    defaultValue=""
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value="">Unknown</option>
-                    <option value="$">$ — Budget</option>
-                    <option value="$$">$$ — Mid-range</option>
-                    <option value="$$$">$$$ — Premium</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Opening Hours
-                </label>
-                <input
-                  name="timing"
-                  placeholder="e.g. Mon–Sat: 08:00 – 22:00"
-                  className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Espresso Price (MAD, cafés only)
-                </label>
-                <input
-                  name="espresso_price"
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  placeholder="e.g. 18"
-                  className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                />
+                <ul className="mt-1 space-y-0.5 text-xs text-gray-500">
+                  <li>· Slow — under 20 Mbps (emails, basic browsing)</li>
+                  <li>· OK — 20–49 Mbps (video calls, light work)</li>
+                  <li>· Fast — 50+ Mbps (smooth remote work, uploads)</li>
+                </ul>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    Card Payment (TPE)
-                  </label>
-                  <select
-                    name="tpe"
-                    defaultValue=""
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value="">Unknown</option>
-                    <option value="1">Yes</option>
-                    <option value="0">No (cash only)</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    Non-smoking area?
-                  </label>
-                  <select
-                    name="non_smoking"
-                    defaultValue=""
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value="">Unknown</option>
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                    Air Conditioning?
-                  </label>
-                  <select
-                    name="air_conditioned"
-                    defaultValue=""
-                    className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  >
-                    <option value="">Unknown</option>
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
-                  </select>
-                </div>
+                <Field label="Espresso Price (MAD)">
+                  <Input
+                    name="espresso_price"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    placeholder="e.g. 18"
+                    className={inputCls}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val) && val > 0) setPriceRange(espressoToRange(val));
+                    }}
+                  />
+                </Field>
+                <Field
+                  label="Price Range"
+                  hint={
+                    <ul className="mt-1 space-y-0.5 text-xs text-gray-500">
+                      <li>· Budget — espresso ≤ 20 MAD</li>
+                      <li>· Mid-range — espresso 21–35 MAD</li>
+                      <li>· Premium — espresso &gt; 35 MAD</li>
+                    </ul>
+                  }
+                >
+                  <Select name="price_range" value={priceRange} onValueChange={setPriceRange}>
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Unknown" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="$">Budget</SelectItem>
+                      <SelectItem value="$$">Mid-range</SelectItem>
+                      <SelectItem value="$$$">Premium</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
+
+              <Field label="Opening Hours">
+                <Input
+                  name="timing"
+                  placeholder="e.g. Mon–Sat: 08:00 – 22:00"
+                  className={inputCls}
+                />
+              </Field>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Card Payment (TPE)">
+                  <Select name="tpe" defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unknown</SelectItem>
+                      <SelectItem value="1">Yes</SelectItem>
+                      <SelectItem value="0">No (cash only)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Non-smoking area?">
+                  <Select name="non_smoking" defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unknown</SelectItem>
+                      <SelectItem value="1">Yes</SelectItem>
+                      <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              <Field label="Air Conditioning?">
+                <Select name="air_conditioned" defaultValue="">
+                  <SelectTrigger className={selectCls}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Unknown</SelectItem>
+                    <SelectItem value="1">Yes</SelectItem>
+                    <SelectItem value="0">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
             </section>
 
             {/* Photos */}
@@ -347,10 +394,7 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
                 Photos
               </h2>
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Upload photos (optional — up to 5)
-                </label>
+              <Field label="Upload photos (optional — up to 5)">
                 <input
                   name="images"
                   type="file"
@@ -358,7 +402,7 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                   accept="image/*"
                   className="w-full rounded-2xl border border-gray-200 px-5 py-4 text-gray-900 font-medium text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-gray-900 file:text-white hover:file:bg-primary file:transition-all"
                 />
-              </div>
+              </Field>
             </section>
 
             {/* Notes & Contact */}
@@ -367,29 +411,23 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                 Notes & Contact
               </h2>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Anything else we should know?
-                </label>
+              <Field label="Anything else we should know?">
                 <textarea
                   name="notes"
                   rows={3}
                   placeholder="Great rooftop view, parking nearby, best espresso in Casablanca…"
                   className="w-full rounded-2xl border border-gray-200 px-5 py-4 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
                 />
-              </div>
+              </Field>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-600">
-                  Your Email (optional — we'll notify you when it's live)
-                </label>
-                <input
+              <Field label="Your Email (optional — we'll notify you when it's live)">
+                <Input
                   name="email"
                   type="email"
                   placeholder="you@example.com"
-                  className="w-full h-14 rounded-2xl border border-gray-200 px-5 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
             </section>
 
             {actionData?.ok === false && (

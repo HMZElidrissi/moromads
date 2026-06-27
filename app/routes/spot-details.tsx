@@ -1,5 +1,5 @@
 import type { Route } from "./+types/spot-details";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { getSpotBySlug, addReview } from "~/lib/db.server";
 import { cloudflareContext } from "../../load-context";
 import { Footer } from "~/components/footer";
@@ -93,7 +93,6 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
   const { spot } = loaderData;
 
   // UI State
-  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -154,8 +153,8 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
     <div className="min-h-screen bg-white flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-[90rem] mx-auto px-6 h-20 flex items-center justify-between">
-          <button
-            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
+          <Link
+            to={`/?city=${encodeURIComponent(spot.city)}`}
             className="flex items-center gap-2 group text-gray-400 hover:text-gray-900 transition-colors"
           >
             <ChevronLeft
@@ -163,7 +162,7 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
               className="group-hover:-translate-x-1 transition-transform text-primary"
             />
             <span className="font-black uppercase tracking-widest text-xs">Back to Directory</span>
-          </button>
+          </Link>
 
           <div className="flex items-center gap-4">
             <button

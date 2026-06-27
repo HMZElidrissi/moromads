@@ -323,12 +323,45 @@ export async function action({ request, context }: Route.ActionArgs) {
 
 // ── Inline spot edit form (used inside table row) ──────────────────────────────
 
+function WifiField({ defaultMbps, required }: { defaultMbps?: number | null; required?: boolean }) {
+  const [wifiMbps, setWifiMbps] = useState(defaultMbps != null ? String(defaultMbps) : "");
+  return (
+    <div className="col-span-2 space-y-1.5">
+      <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        WiFi Speed{required && " *"}
+      </label>
+      <div className="grid grid-cols-2 gap-4">
+        <Select onValueChange={(t) => setWifiMbps(wifiTierToMbps(t))}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Quality…" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="slow">Slow</SelectItem>
+            <SelectItem value="ok">OK</SelectItem>
+            <SelectItem value="fast">Fast</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          name="wifi_mbps"
+          type="number"
+          min="1"
+          required={required}
+          placeholder="Exact Mbps (optional)"
+          value={wifiMbps}
+          onChange={(e) => setWifiMbps(e.target.value)}
+        />
+      </div>
+      {WIFI_HINT}
+    </div>
+  );
+}
+
 function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
   const [keptImages, setKeptImages] = useState<string[]>(spot.images ?? []);
   const fetcher = useFetcher<typeof action>();
   const busy = fetcher.state !== "idle";
   const prevFetcherState = useRef(fetcher.state);
-  const [priceRange, setPriceRange] = useState(spot.priceRange);
+  const [priceRange, setPriceRange] = useState<string>(spot.priceRange);
 
   useEffect(() => {
     if (prevFetcherState.current !== "idle" && fetcher.state === "idle" && fetcher.data) {
@@ -360,7 +393,9 @@ function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
         </Field>
         <Field label="Type *">
           <Select name="type" required defaultValue={spot.type}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="café">Café</SelectItem>
               <SelectItem value="coworking">Coworking</SelectItem>
@@ -377,7 +412,11 @@ function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
           <Input name="maps_url" type="url" defaultValue={spot.mapsUrl} />
         </Field>
         <Field label="Opening Hours">
-          <Input name="timing" defaultValue={spot.timing ?? ""} placeholder="Mon–Sat: 08:00 – 22:00" />
+          <Input
+            name="timing"
+            defaultValue={spot.timing ?? ""}
+            placeholder="Mon–Sat: 08:00 – 22:00"
+          />
         </Field>
       </div>
 
@@ -385,12 +424,26 @@ function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
         Technical Details
       </p>
       <div className="grid grid-cols-2 gap-4">
-        <Field label="WiFi Speed (Mbps) *">
-          <Input name="wifi_mbps" type="number" required min="1" defaultValue={spot.wifiMbps} />
+        <WifiField defaultMbps={spot.wifiMbps} required />
+        <Field label="Comfort Score (1–5) *">
+          <Select name="comfort_score" required defaultValue={String(spot.comfortScore)}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label="Noise Level *">
           <Select name="noise_level" required defaultValue={spot.noiseLevel}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="quiet">Quiet</SelectItem>
               <SelectItem value="moderate">Moderate</SelectItem>
@@ -398,43 +451,18 @@ function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Comfort Score (1–5) *">
-          <Select name="comfort_score" required defaultValue={String(spot.comfortScore)}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+        <Field label="Air Conditioning?">
+          <Select
+            name="air_conditioned"
+            defaultValue={spot.airConditioned === null ? "" : spot.airConditioned ? "1" : "0"}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Power Outlets *">
-          <Select name="outlets_label" required defaultValue={spot.outletsLabel}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Yes">Yes</SelectItem>
-              <SelectItem value="Limited">Limited</SelectItem>
-              <SelectItem value="No">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
-          <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="$">Budget</SelectItem>
-              <SelectItem value="$$">Mid-range</SelectItem>
-              <SelectItem value="$$$">Premium</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Vibe *">
-          <Select name="gradient" required defaultValue={spot.gradient}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {GRADIENTS.map((g) => (
-                <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-              ))}
+              <SelectItem value="">Unknown</SelectItem>
+              <SelectItem value="1">Yes</SelectItem>
+              <SelectItem value="0">No</SelectItem>
             </SelectContent>
           </Select>
         </Field>
@@ -451,9 +479,49 @@ function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
             }}
           />
         </Field>
+        <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
+          <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="$">Budget</SelectItem>
+              <SelectItem value="$$">Mid-range</SelectItem>
+              <SelectItem value="$$$">Premium</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="Power Outlets *">
+          <Select name="outlets_label" required defaultValue={spot.outletsLabel}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Yes">Yes</SelectItem>
+              <SelectItem value="Limited">Limited</SelectItem>
+              <SelectItem value="No">No</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="Vibe *">
+          <Select name="gradient" required defaultValue={spot.gradient}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {GRADIENTS.map((g) => (
+                <SelectItem key={g.value} value={g.value}>
+                  {g.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
         <Field label="TPE / Card Payment">
           <Select name="tpe" defaultValue={spot.tpe === null ? "" : spot.tpe ? "1" : "0"}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Unknown</SelectItem>
               <SelectItem value="1">Yes</SelectItem>
@@ -461,19 +529,14 @@ function SpotEditForm({ spot, onClose }: { spot: Place; onClose: () => void }) {
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Non-smoking area?">
-          <Select name="non_smoking" defaultValue={spot.nonSmoking === null ? "" : spot.nonSmoking ? "1" : "0"}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Air Conditioning?">
-          <Select name="air_conditioned" defaultValue={spot.airConditioned === null ? "" : spot.airConditioned ? "1" : "0"}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+        <Field label="Non-smoking area?" className="col-span-2">
+          <Select
+            name="non_smoking"
+            defaultValue={spot.nonSmoking === null ? "" : spot.nonSmoking ? "1" : "0"}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Unknown</SelectItem>
               <SelectItem value="1">Yes</SelectItem>
@@ -578,7 +641,9 @@ function AddSpotForm() {
           </Field>
           <Field label="Type *">
             <Select name="type" required defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="café">Café</SelectItem>
                 <SelectItem value="coworking">Coworking</SelectItem>
@@ -604,12 +669,26 @@ function AddSpotForm() {
         </p>
 
         <div className="grid grid-cols-2 gap-4">
-          <Field label="WiFi Speed (Mbps) *">
-            <Input name="wifi_mbps" type="number" required min="1" />
+          <WifiField required />
+          <Field label="Comfort Score (1–5) *">
+            <Select name="comfort_score" required defaultValue="">
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
           <Field label="Noise Level *">
             <Select name="noise_level" required defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="quiet">Quiet</SelectItem>
                 <SelectItem value="moderate">Moderate</SelectItem>
@@ -617,43 +696,15 @@ function AddSpotForm() {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Comfort Score (1–5) *">
-            <Select name="comfort_score" required defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+          <Field label="Air Conditioning?">
+            <Select name="air_conditioned" defaultValue="">
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Power Outlets *">
-            <Select name="outlets_label" required defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Yes">Yes</SelectItem>
-                <SelectItem value="Limited">Limited</SelectItem>
-                <SelectItem value="No">No</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
-            <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
-              <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="$">Budget</SelectItem>
-                <SelectItem value="$$">Mid-range</SelectItem>
-                <SelectItem value="$$$">Premium</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Vibe *">
-            <Select name="gradient" required defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
-              <SelectContent>
-                {GRADIENTS.map((g) => (
-                  <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                ))}
+                <SelectItem value="">Unknown</SelectItem>
+                <SelectItem value="1">Yes</SelectItem>
+                <SelectItem value="0">No</SelectItem>
               </SelectContent>
             </Select>
           </Field>
@@ -669,9 +720,49 @@ function AddSpotForm() {
               }}
             />
           </Field>
+          <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
+            <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="$">Budget</SelectItem>
+                <SelectItem value="$$">Mid-range</SelectItem>
+                <SelectItem value="$$$">Premium</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Power Outlets *">
+            <Select name="outlets_label" required defaultValue="">
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Yes">Yes</SelectItem>
+                <SelectItem value="Limited">Limited</SelectItem>
+                <SelectItem value="No">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Vibe *">
+            <Select name="gradient" required defaultValue="">
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select…" />
+              </SelectTrigger>
+              <SelectContent>
+                {GRADIENTS.map((g) => (
+                  <SelectItem key={g.value} value={g.value}>
+                    {g.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
           <Field label="TPE / Card Payment">
             <Select name="tpe" defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Unknown</SelectItem>
                 <SelectItem value="1">Yes</SelectItem>
@@ -679,19 +770,11 @@ function AddSpotForm() {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Non-smoking area?">
+          <Field label="Non-smoking area?" className="col-span-2">
             <Select name="non_smoking" defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Unknown</SelectItem>
-                <SelectItem value="1">Yes</SelectItem>
-                <SelectItem value="0">No</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Air Conditioning?">
-            <Select name="air_conditioned" defaultValue="">
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Unknown</SelectItem>
                 <SelectItem value="1">Yes</SelectItem>
@@ -726,6 +809,21 @@ function espressoToRange(mad: number): "$" | "$$" | "$$$" {
   return "$$$";
 }
 
+function wifiTierToMbps(tier: string): string {
+  if (tier === "slow") return "10";
+  if (tier === "ok") return "30";
+  if (tier === "fast") return "75";
+  return "";
+}
+
+const WIFI_HINT = (
+  <ul className="mt-1 space-y-0.5 text-xs text-foreground/60">
+    <li>· Slow — under 20 Mbps (emails, basic browsing)</li>
+    <li>· OK — 20–49 Mbps (video calls, light work)</li>
+    <li>· Fast — 50+ Mbps (smooth remote work, uploads)</li>
+  </ul>
+);
+
 const PRICE_RANGE_HINT = (
   <ul className="mt-1 space-y-0.5 text-xs text-foreground/60">
     <li>· Budget — espresso ≤ 20 MAD</li>
@@ -734,9 +832,22 @@ const PRICE_RANGE_HINT = (
   </ul>
 );
 
-function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: React.ReactNode }) {
+const fieldCls =
+  "w-full h-10 rounded-lg border border-border px-3 text-foreground text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all";
+
+function Field({
+  label,
+  children,
+  hint,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  hint?: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="space-y-1">
+    <div className={cn("space-y-1", className)}>
       <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </label>
@@ -815,7 +926,7 @@ function ApprovalForm({
   onClose: () => void;
   busy: boolean;
 }) {
-  const [priceRange, setPriceRange] = useState(sub.priceRange ?? "");
+  const [priceRange, setPriceRange] = useState<string>(sub.priceRange ?? "");
   return (
     <Form method="post" className="p-6 space-y-5">
       <input type="hidden" name="intent" value="approve" />
@@ -847,12 +958,26 @@ function ApprovalForm({
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="WiFi Speed (Mbps) *">
-          <Input name="wifi_mbps" type="number" required min="1" defaultValue={sub.wifiMbps ?? ""} />
+        <WifiField defaultMbps={sub.wifiMbps} required />
+        <Field label="Comfort Score (1–5) *">
+          <Select name="comfort_score" required defaultValue="">
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label="Noise Level *">
           <Select name="noise_level" required defaultValue="">
-            <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="quiet">Quiet</SelectItem>
               <SelectItem value="moderate">Moderate</SelectItem>
@@ -860,29 +985,39 @@ function ApprovalForm({
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Comfort Score (1–5) *">
-          <Select name="comfort_score" required defaultValue="">
-            <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+        <Field label="Air Conditioning?">
+          <Select
+            name="air_conditioned"
+            defaultValue={sub.airConditioned === null ? "" : sub.airConditioned ? "1" : "0"}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
-              ))}
+              <SelectItem value="">Unknown</SelectItem>
+              <SelectItem value="1">Yes</SelectItem>
+              <SelectItem value="0">No</SelectItem>
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Power Outlets *">
-          <Select name="outlets_label" required defaultValue="">
-            <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Yes">Yes</SelectItem>
-              <SelectItem value="Limited">Limited</SelectItem>
-              <SelectItem value="No">No</SelectItem>
-            </SelectContent>
-          </Select>
+        <Field label="Espresso Price (MAD)">
+          <Input
+            name="espresso_price"
+            type="number"
+            min="0"
+            step="0.5"
+            defaultValue={sub.espressoPrice ?? ""}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val) && val > 0) setPriceRange(espressoToRange(val));
+            }}
+          />
         </Field>
         <Field label="Price Range *" hint={PRICE_RANGE_HINT}>
           <Select name="price_range" required value={priceRange} onValueChange={setPriceRange}>
-            <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="$">Budget</SelectItem>
               <SelectItem value="$$">Mid-range</SelectItem>
@@ -890,19 +1025,37 @@ function ApprovalForm({
             </SelectContent>
           </Select>
         </Field>
+        <Field label="Power Outlets *">
+          <Select name="outlets_label" required defaultValue="">
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Yes">Yes</SelectItem>
+              <SelectItem value="Limited">Limited</SelectItem>
+              <SelectItem value="No">No</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
         <Field label="Vibe *">
           <Select name="gradient" required defaultValue="">
-            <SelectTrigger className="w-full"><SelectValue placeholder="Select…" /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select…" />
+            </SelectTrigger>
             <SelectContent>
               {GRADIENTS.map((g) => (
-                <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                <SelectItem key={g.value} value={g.value}>
+                  {g.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </Field>
         <Field label="TPE / Card Payment">
           <Select name="tpe" defaultValue={sub.tpe === null ? "" : sub.tpe ? "1" : "0"}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Unknown</SelectItem>
               <SelectItem value="1">Yes</SelectItem>
@@ -910,19 +1063,14 @@ function ApprovalForm({
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Non-smoking area?">
-          <Select name="non_smoking" defaultValue={sub.nonSmoking === null ? "" : sub.nonSmoking ? "1" : "0"}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unknown</SelectItem>
-              <SelectItem value="1">Yes</SelectItem>
-              <SelectItem value="0">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Air Conditioning?">
-          <Select name="air_conditioned" defaultValue={sub.airConditioned === null ? "" : sub.airConditioned ? "1" : "0"}>
-            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+        <Field label="Non-smoking area?" className="col-span-2">
+          <Select
+            name="non_smoking"
+            defaultValue={sub.nonSmoking === null ? "" : sub.nonSmoking ? "1" : "0"}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Unknown</SelectItem>
               <SelectItem value="1">Yes</SelectItem>
@@ -940,20 +1088,6 @@ function ApprovalForm({
       {!sub.timing && (
         <Field label="Opening Hours">
           <input name="timing" placeholder="Mon–Sat: 08:00 – 22:00" className={fieldCls} />
-        </Field>
-      )}
-      {sub.type === "café" && !sub.espressoPrice && (
-        <Field label="Espresso Price (MAD)">
-          <Input
-            name="espresso_price"
-            type="number"
-            min="0"
-            step="0.5"
-            onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val) && val > 0) setPriceRange(espressoToRange(val));
-            }}
-          />
         </Field>
       )}
 

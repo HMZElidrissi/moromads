@@ -8,17 +8,16 @@ import {
   type ReactNode,
 } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import {
-  Zap,
-  MapPin,
-  ExternalLink,
-  Star,
-  Clock,
-  ChevronDown,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Zap, MapPin, ExternalLink, Star, Clock, SlidersHorizontal } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -267,48 +266,64 @@ function Filters({ className, ...props }: FiltersProps) {
               ],
             },
           ].map((select) => (
-            <div key={select.id} className="relative group">
-              <select
-                value={select.value}
-                onChange={(e) => set(select.id as keyof Filters, e.target.value)}
-                className="appearance-none pl-4 pr-10 py-2.5 text-sm font-bold text-gray-700 bg-gray-100/80 hover:bg-gray-200/80 rounded-full border-none outline-none cursor-pointer transition-colors"
+            <Select
+              key={select.id}
+              value={select.value}
+              onValueChange={(val) => set(select.id as keyof Filters, val)}
+            >
+              <SelectTrigger className="h-10 min-h-10 border-none bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 font-bold px-4 rounded-full cursor-pointer transition-colors shadow-none select-none focus:ring-0 focus-visible:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                align="start"
+                className="bg-white border border-gray-100 shadow-md rounded-xl p-1"
               >
-                {select.options.map((opt) =>
-                  typeof opt === "string" ? (
-                    <option key={opt}>{opt}</option>
-                  ) : (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ),
-                )}
-              </select>
-              <ChevronDown
-                size={16}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-transform group-hover:translate-y-[-40%]"
-                aria-hidden
-              />
-            </div>
+                {select.options.map((opt) => {
+                  const val = typeof opt === "string" ? opt : opt.value;
+                  const label = typeof opt === "string" ? opt : opt.label;
+                  return (
+                    <SelectItem
+                      key={val}
+                      value={val}
+                      className="rounded-lg text-sm text-gray-700 cursor-pointer"
+                    >
+                      {label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           ))}
 
           {/* Sort */}
-          <div className="relative ml-auto group">
-            <select
-              value={filters.sort}
-              onChange={(e) => set("sort", e.target.value as Filters["sort"])}
-              className="appearance-none pl-4 pr-10 py-2.5 text-sm font-bold text-gray-900 bg-white border-2 border-gray-100 rounded-full outline-none cursor-pointer transition-all hover:border-primary/30"
+          <Select value={filters.sort} onValueChange={(val) => set("sort", val as Filters["sort"])}>
+            <SelectTrigger className="ml-auto h-10 min-h-10 pl-4 pr-4 text-sm font-bold text-gray-900 bg-white border-2 border-gray-100 hover:border-gray-200 rounded-full cursor-pointer transition-all hover:border-primary/30 focus:ring-0 focus-visible:ring-0 shadow-none select-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent
+              align="end"
+              className="bg-white border border-gray-100 shadow-md rounded-xl p-1"
             >
-              <option value="rating">Sort: Best rated</option>
-              <option value="wifi">Sort: Fastest WiFi</option>
-              <option value="price">Sort: Cheapest first</option>
-              <option value="reviews">Sort: Most reviewed</option>
-            </select>
-            <ChevronDown
-              size={16}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-primary"
-              aria-hidden
-            />
-          </div>
+              <SelectItem
+                value="rating"
+                className="rounded-lg text-sm text-gray-700 cursor-pointer"
+              >
+                Sort: Best rated
+              </SelectItem>
+              <SelectItem value="wifi" className="rounded-lg text-sm text-gray-700 cursor-pointer">
+                Sort: Fastest WiFi
+              </SelectItem>
+              <SelectItem value="price" className="rounded-lg text-sm text-gray-700 cursor-pointer">
+                Sort: Cheapest first
+              </SelectItem>
+              <SelectItem
+                value="reviews"
+                className="rounded-lg text-sm text-gray-700 cursor-pointer"
+              >
+                Sort: Most reviewed
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
           <span className="text-sm text-gray-400 font-bold shrink-0" aria-live="polite">
             <span className="text-gray-900">{filtered.length}</span> spots
