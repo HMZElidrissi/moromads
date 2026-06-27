@@ -187,7 +187,10 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
             {/* LEFT COLUMN: Visuals */}
             <div className="space-y-4">
               {/* Main image */}
-              <div className="relative aspect-4/3 rounded-2xl overflow-hidden group shadow-xl shadow-gray-200">
+              <div
+                className="relative rounded-2xl overflow-hidden group shadow-xl shadow-gray-200"
+                style={{ aspectRatio: "4/3" }}
+              >
                 {images[activeImg] ? (
                   <img
                     key={activeImg}
