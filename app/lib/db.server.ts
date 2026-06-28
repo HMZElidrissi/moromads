@@ -29,6 +29,7 @@ type Row = {
   review_count: number;
   images: string;
   tags: string;
+  notes: string | null;
 };
 
 function rowToPlace(row: Row): Place {
@@ -59,6 +60,7 @@ function rowToPlace(row: Row): Place {
     gradient: row.gradient,
     images: JSON.parse(row.images) as string[],
     tags: JSON.parse(row.tags) as string[],
+    notes: row.notes ?? null,
   };
 }
 
@@ -110,6 +112,9 @@ export type Submission = {
   tpe: boolean | null;
   nonSmoking: boolean | null;
   airConditioned: boolean | null;
+  noiseLevel: string | null;
+  outletsLabel: string | null;
+  staffScore: number | null;
   notes: string | null;
   submitterEmail: string | null;
   images: string[];
@@ -131,6 +136,9 @@ type SubmissionRow = {
   tpe: number | null;
   non_smoking: number | null;
   air_conditioned: number | null;
+  noise_level: string | null;
+  outlets_label: string | null;
+  staff_score: number | null;
   notes: string | null;
   submitter_email: string | null;
   images: string;
@@ -153,6 +161,9 @@ function rowToSubmission(row: SubmissionRow): Submission {
     tpe: row.tpe === null ? null : row.tpe === 1,
     nonSmoking: row.non_smoking === null ? null : row.non_smoking === 1,
     airConditioned: row.air_conditioned === null ? null : row.air_conditioned === 1,
+    noiseLevel: row.noise_level ?? null,
+    outletsLabel: row.outlets_label ?? null,
+    staffScore: row.staff_score ?? null,
     notes: row.notes,
     submitterEmail: row.submitter_email,
     images: JSON.parse(row.images) as string[],
@@ -169,8 +180,10 @@ export async function addSubmission(
     .prepare(
       `INSERT INTO spot_submissions
        (name, type, city, address, maps_url, wifi_mbps, timing, espresso_price,
-        price_range, tpe, non_smoking, air_conditioned, notes, submitter_email, images)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        price_range, tpe, non_smoking, air_conditioned,
+        noise_level, outlets_label, staff_score,
+        notes, submitter_email, images)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       data.name,
@@ -185,6 +198,9 @@ export async function addSubmission(
       data.tpe === null ? null : data.tpe ? 1 : 0,
       data.nonSmoking === null ? null : data.nonSmoking ? 1 : 0,
       data.airConditioned === null ? null : data.airConditioned ? 1 : 0,
+      data.noiseLevel ?? null,
+      data.outletsLabel ?? null,
+      data.staffScore ?? null,
       data.notes ?? null,
       data.submitterEmail ?? null,
       JSON.stringify(data.images ?? []),
@@ -217,6 +233,8 @@ export type ApprovalDetails = {
   staffScore?: number | null;
   espressoPrice?: number | null;
   gradient: string;
+  notes?: string | null;
+  extraTags?: string[];
 };
 
 function wifiLabel(mbps: number): string {
@@ -252,7 +270,7 @@ export async function approveSubmission(
     slug = `${base}-${suffix++}`;
   }
 
-  const tags = JSON.stringify([sub.type, sub.city.toLowerCase()]);
+  const tags = JSON.stringify([sub.type, sub.city.toLowerCase(), ...(details.extraTags ?? [])]);
 
   await db.batch([
     db
@@ -261,8 +279,8 @@ export async function approveSubmission(
          (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
           noise_level, noise_score_label, comfort_score, comfort_score_label,
           espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
-          staff_score, gradient, images, tags)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          staff_score, gradient, images, tags, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         slug,
@@ -288,6 +306,7 @@ export async function approveSubmission(
         details.gradient,
         JSON.stringify(sub.images.map((key) => `/images/${key}`)),
         tags,
+        details.notes ?? null,
       ),
     db.prepare("UPDATE spot_submissions SET status = 'approved' WHERE id = ?").bind(id),
   ]);
@@ -316,6 +335,8 @@ export type NewSpot = {
   staffScore: number | null;
   gradient: string;
   images: string[];
+  notes: string | null;
+  extraTags: string[];
 };
 
 export async function createSpot(db: D1Database, data: NewSpot): Promise<string> {
@@ -326,7 +347,7 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
     slug = `${base}-${suffix++}`;
   }
 
-  const tags = JSON.stringify([data.type, data.city.toLowerCase()]);
+  const tags = JSON.stringify([data.type, data.city.toLowerCase(), ...data.extraTags]);
 
   await db
     .prepare(
@@ -334,8 +355,8 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
        (slug, name, type, city, address, maps_url, wifi_mbps, wifi_speed_label,
         noise_level, noise_score_label, comfort_score, comfort_score_label,
         espresso_price, price_range, timing, outlets_label, tpe, non_smoking, air_conditioned,
-        staff_score, gradient, images, tags)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        staff_score, gradient, images, tags, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -361,6 +382,7 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
       data.gradient,
       JSON.stringify(data.images.map((key) => `/images/${key}`)),
       tags,
+      data.notes ?? null,
     )
     .run();
 
@@ -369,12 +391,12 @@ export async function createSpot(db: D1Database, data: NewSpot): Promise<string>
 
 export type SpotUpdate = Omit<NewSpot, "images"> & {
   slug: string;
-  keepImages: string[]; // existing URLs to retain (caller omits removed ones)
-  appendImages: string[]; // new R2 keys to append
+  keepImages: string[];
+  appendImages: string[];
 };
 
 export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void> {
-  const tags = JSON.stringify([data.type, data.city.toLowerCase()]);
+  const tags = JSON.stringify([data.type, data.city.toLowerCase(), ...data.extraTags]);
 
   const newImageUrls = data.appendImages.map((key) => `/images/${key}`);
   const images = JSON.stringify([...data.keepImages, ...newImageUrls]);
@@ -386,7 +408,7 @@ export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void
          wifi_mbps = ?, wifi_speed_label = ?,
          noise_level = ?, noise_score_label = ?, comfort_score = ?, comfort_score_label = ?,
          espresso_price = ?, price_range = ?, timing = ?, outlets_label = ?,
-         tpe = ?, non_smoking = ?, air_conditioned = ?, staff_score = ?, gradient = ?, images = ?, tags = ?
+         tpe = ?, non_smoking = ?, air_conditioned = ?, staff_score = ?, gradient = ?, images = ?, tags = ?, notes = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -412,6 +434,7 @@ export async function updateSpot(db: D1Database, data: SpotUpdate): Promise<void
       data.gradient,
       images,
       tags,
+      data.notes ?? null,
       data.slug,
     )
     .run();

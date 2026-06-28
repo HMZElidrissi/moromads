@@ -33,17 +33,29 @@ export function espressoToRange(mad: number): "$" | "$$" | "$$$" {
 }
 
 export function wifiTierToMbps(tier: string): string {
-  if (tier === "slow") return "10";
-  if (tier === "ok") return "30";
-  if (tier === "fast") return "75";
+  if (tier === "very-poor") return "3";
+  if (tier === "poor") return "7";
+  if (tier === "ok") return "20";
+  if (tier === "good") return "50";
+  if (tier === "excellent") return "100";
   return "";
+}
+
+export function wifiLabel(mbps: number): string {
+  if (mbps >= 80) return "Excellent";
+  if (mbps >= 40) return "Good";
+  if (mbps >= 15) return "OK";
+  if (mbps >= 5) return "Poor";
+  return "Very Poor";
 }
 
 export const WIFI_HINT = (
   <ul className="mt-1 space-y-0.5 text-xs text-foreground/60">
-    <li>· Slow — under 20 Mbps (emails, basic browsing)</li>
-    <li>· OK — 20–49 Mbps (video calls, light work)</li>
-    <li>· Fast — 50+ Mbps (smooth remote work, uploads)</li>
+    <li>· Very Poor — under 5 Mbps</li>
+    <li>· Poor — 5–14 Mbps (basic browsing)</li>
+    <li>· OK — 15–39 Mbps (video calls, light work)</li>
+    <li>· Good — 40–79 Mbps (smooth remote work)</li>
+    <li>· Excellent — 80+ Mbps (fast uploads, HD video)</li>
   </ul>
 );
 
@@ -78,6 +90,8 @@ export type WifiFieldProps = { defaultMbps?: number | null; required?: boolean }
 
 export function WifiField({ defaultMbps, required }: WifiFieldProps) {
   const [wifiMbps, setWifiMbps] = useState(defaultMbps != null ? String(defaultMbps) : "");
+  const mbpsNum = parseFloat(wifiMbps);
+  const label = !isNaN(mbpsNum) && mbpsNum > 0 ? wifiLabel(mbpsNum) : null;
   return (
     <div className="col-span-2 space-y-1.5">
       <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -86,23 +100,32 @@ export function WifiField({ defaultMbps, required }: WifiFieldProps) {
       <div className="grid grid-cols-2 gap-4">
         <Select onValueChange={(t) => setWifiMbps(wifiTierToMbps(t))}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Quality…" />
+            <SelectValue placeholder="Quick pick…" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="slow">Slow</SelectItem>
-            <SelectItem value="ok">OK</SelectItem>
-            <SelectItem value="fast">Fast</SelectItem>
+            <SelectItem value="very-poor">Very Poor (~3 Mbps)</SelectItem>
+            <SelectItem value="poor">Poor (~7 Mbps)</SelectItem>
+            <SelectItem value="ok">OK (~20 Mbps)</SelectItem>
+            <SelectItem value="good">Good (~50 Mbps)</SelectItem>
+            <SelectItem value="excellent">Excellent (~100 Mbps)</SelectItem>
           </SelectContent>
         </Select>
-        <Input
-          name="wifi_mbps"
-          type="number"
-          min="1"
-          required={required}
-          placeholder="Exact Mbps (optional)"
-          value={wifiMbps}
-          onChange={(e) => setWifiMbps(e.target.value)}
-        />
+        <div className="relative">
+          <Input
+            name="wifi_mbps"
+            type="number"
+            min="1"
+            required={required}
+            placeholder="Exact Mbps"
+            value={wifiMbps}
+            onChange={(e) => setWifiMbps(e.target.value)}
+          />
+          {label && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-wide text-primary pointer-events-none">
+              {label}
+            </span>
+          )}
+        </div>
       </div>
       {WIFI_HINT}
     </div>

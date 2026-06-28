@@ -189,6 +189,26 @@ export function AddSpotForm() {
           </Field>
         </div>
 
+        <Field
+          label="Extra Tags"
+          hint={
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Comma-separated, e.g. sea-view, dog-friendly, rooftop
+            </p>
+          }
+        >
+          <Input name="extra_tags" placeholder="sea-view, dog-friendly" />
+        </Field>
+
+        <Field label="Internal Notes">
+          <textarea
+            name="notes"
+            rows={2}
+            placeholder="Admin-only notes about this spot…"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+          />
+        </Field>
+
         <Field label="Photos (optional)">
           <input name="images" type="file" multiple accept="image/*" className={fileCls} />
         </Field>

@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS spots (
   staff_score    INTEGER CHECK(staff_score BETWEEN 1 AND 5),
   gradient      TEXT NOT NULL,
   images        TEXT NOT NULL DEFAULT '[]',  -- JSON array
-  tags          TEXT NOT NULL DEFAULT '[]'   -- JSON array
+  tags          TEXT NOT NULL DEFAULT '[]',  -- JSON array
+  notes         TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_spots_city ON spots (city);
@@ -54,6 +55,9 @@ CREATE TABLE IF NOT EXISTS spot_submissions (
   tpe             INTEGER,
   non_smoking     INTEGER,
   air_conditioned INTEGER,
+  noise_level     TEXT,
+  outlets_label   TEXT,
+  staff_score     INTEGER CHECK(staff_score BETWEEN 1 AND 5),
   notes           TEXT,
   submitter_email TEXT,
   images          TEXT NOT NULL DEFAULT '[]',

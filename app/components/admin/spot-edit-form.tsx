@@ -237,6 +237,33 @@ export function SpotEditForm({ spot, onClose }: SpotEditFormProps) {
         </Field>
       </div>
 
+      <Field
+        label="Extra Tags"
+        hint={
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Comma-separated, e.g. sea-view, dog-friendly, rooftop
+          </p>
+        }
+      >
+        <Input
+          name="extra_tags"
+          defaultValue={spot.tags
+            .filter((t) => t !== spot.type && t !== spot.city.toLowerCase())
+            .join(", ")}
+          placeholder="sea-view, dog-friendly"
+        />
+      </Field>
+
+      <Field label="Internal Notes">
+        <textarea
+          name="notes"
+          rows={2}
+          defaultValue={spot.notes ?? ""}
+          placeholder="Admin-only notes about this spot…"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+        />
+      </Field>
+
       {spot.images && spot.images.length > 0 && (
         <div className="space-y-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">

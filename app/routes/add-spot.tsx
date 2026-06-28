@@ -94,6 +94,9 @@ export async function action({ request, context }: Route.ActionArgs) {
         : form.get("air_conditioned") === "0"
           ? false
           : null,
+    noiseLevel: str("noise_level") || null,
+    outletsLabel: str("outlets_label") || null,
+    staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
     notes: str("notes") || null,
     submitterEmail: str("email") || null,
     images: imageKeys,
@@ -349,6 +352,47 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
+                <Field label="Noise Level">
+                  <Select name="noise_level" defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unknown</SelectItem>
+                      <SelectItem value="quiet">Quiet — easy to focus</SelectItem>
+                      <SelectItem value="moderate">Moderate — some background noise</SelectItem>
+                      <SelectItem value="lively">Lively — busy atmosphere</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Power Outlets">
+                  <Select name="outlets_label" defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unknown</SelectItem>
+                      <SelectItem value="Yes">Yes — plenty available</SelectItem>
+                      <SelectItem value="Limited">Limited — a few spots</SelectItem>
+                      <SelectItem value="No">No outlets</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Staff Friendliness">
+                  <Select name="staff_score" defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unknown</SelectItem>
+                      <SelectItem value="1">Poor</SelectItem>
+                      <SelectItem value="2">OK</SelectItem>
+                      <SelectItem value="3">Good</SelectItem>
+                      <SelectItem value="4">Very Good</SelectItem>
+                      <SelectItem value="5">Excellent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
                 <Field label="Card Payment (TPE)">
                   <Select name="tpe" defaultValue="">
                     <SelectTrigger className={selectCls}>
@@ -373,20 +417,19 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                     </SelectContent>
                   </Select>
                 </Field>
+                <Field label="Air Conditioning?">
+                  <Select name="air_conditioned" defaultValue="">
+                    <SelectTrigger className={selectCls}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unknown</SelectItem>
+                      <SelectItem value="1">Yes</SelectItem>
+                      <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
-
-              <Field label="Air Conditioning?">
-                <Select name="air_conditioned" defaultValue="">
-                  <SelectTrigger className={selectCls}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Unknown</SelectItem>
-                    <SelectItem value="1">Yes</SelectItem>
-                    <SelectItem value="0">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
             </section>
 
             {/* Photos */}

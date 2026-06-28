@@ -377,6 +377,28 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                   <Info size={20} className="shrink-0 z-10 opacity-30" />
                 </div>
               )}
+
+              {spot.notes && (
+                <div className="px-6 py-5 rounded-2xl bg-gray-50 border border-gray-100">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
+                    Notes
+                  </p>
+                  <ul className="space-y-1.5">
+                    {spot.notes
+                      .split("\n")
+                      .filter((l) => l.trim())
+                      .map((line, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-2 text-sm text-gray-600 font-medium"
+                        >
+                          <span className="text-primary mt-0.5 shrink-0">·</span>
+                          {line.trim()}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* RIGHT COLUMN: Info & Interaction */}
@@ -409,9 +431,10 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
                   </div>
                   <div className="flex items-center gap-3 text-gray-600 font-medium text-base">
                     <MapPin size={20} className="text-primary shrink-0" />
-                    <span>
-                      {spot.city} · {spot.address}
-                    </span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-bold text-gray-900">{spot.city}</span>
+                      <span className="text-base text-gray-500">{spot.address}</span>
+                    </div>
                   </div>
                   {spot.timing && (
                     <div className="flex items-center gap-3 text-gray-600 font-medium text-base">

@@ -126,6 +126,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     if (!subRaw) return { ok: false, error: "Missing submission data." };
     const sub = JSON.parse(subRaw as string) as Submission;
 
+    const approveStr = (k: string) => ((form.get(k) as string | null) ?? "").trim();
     await approveSubmission(env.DB, id, sub, {
       wifiMbps,
       noiseLevel,
@@ -146,6 +147,11 @@ export async function action({ request, context }: Route.ActionArgs) {
             : null,
       staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
       espressoPrice: form.get("espresso_price") ? Number(form.get("espresso_price")) : null,
+      notes: approveStr("notes") || null,
+      extraTags: approveStr("extra_tags")
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean),
     });
 
     return { ok: true };
@@ -215,6 +221,11 @@ export async function action({ request, context }: Route.ActionArgs) {
             : null,
       staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
       images: imageKeys,
+      notes: str("notes") || null,
+      extraTags: str("extra_tags")
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean),
     });
 
     return { ok: true, slug };
@@ -288,6 +299,11 @@ export async function action({ request, context }: Route.ActionArgs) {
       staffScore: form.get("staff_score") ? Number(form.get("staff_score")) : null,
       keepImages: form.getAll("keep_image") as string[],
       appendImages: appendKeys,
+      notes: str("notes") || null,
+      extraTags: str("extra_tags")
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean),
     });
 
     return { ok: true };
@@ -336,9 +352,11 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
     if (navigation.state === "submitting") {
       prevFormRef.current = navigation.formData?.get("intent") as string | null;
     }
-    if (prevNavState.current === "submitting" && navigation.state === "idle" && authed) {
+    const wasActive = prevNavState.current === "submitting" || prevNavState.current === "loading";
+    if (wasActive && navigation.state === "idle" && authed && prevFormRef.current) {
       const intent = prevFormRef.current;
-      if (!intent || intent === "login" || intent === "setup" || intent === "update-spot") return;
+      prevFormRef.current = null;
+      if (intent === "login" || intent === "setup" || intent === "update-spot") return;
       if (actionData?.ok === true) toast.success(ACTION_LABELS[intent] ?? "Done");
       else if (actionData?.ok === false && "error" in actionData) toast.error(actionData.error);
     }

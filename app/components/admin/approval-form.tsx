@@ -68,7 +68,7 @@ export function ApprovalForm({ sub, onClose, busy }: ApprovalFormProps) {
           </Select>
         </Field>
         <Field label="Noise Level *">
-          <Select name="noise_level" required defaultValue="">
+          <Select name="noise_level" required defaultValue={sub.noiseLevel ?? ""}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select…" />
             </SelectTrigger>
@@ -120,7 +120,7 @@ export function ApprovalForm({ sub, onClose, busy }: ApprovalFormProps) {
           </Select>
         </Field>
         <Field label="Power Outlets *">
-          <Select name="outlets_label" required defaultValue="">
+          <Select name="outlets_label" required defaultValue={sub.outletsLabel ?? ""}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select…" />
             </SelectTrigger>
@@ -173,7 +173,10 @@ export function ApprovalForm({ sub, onClose, busy }: ApprovalFormProps) {
           </Select>
         </Field>
         <Field label="Staff Friendliness">
-          <Select name="staff_score" defaultValue="">
+          <Select
+            name="staff_score"
+            defaultValue={sub.staffScore != null ? String(sub.staffScore) : ""}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Unknown" />
             </SelectTrigger>
@@ -188,6 +191,18 @@ export function ApprovalForm({ sub, onClose, busy }: ApprovalFormProps) {
           </Select>
         </Field>
       </div>
+
+      <Field label="Extra Tags">
+        <Input name="extra_tags" placeholder="sea-view, dog-friendly, rooftop" />
+      </Field>
+      <Field label="Internal Notes">
+        <textarea
+          name="notes"
+          rows={2}
+          placeholder="Admin-only notes…"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+        />
+      </Field>
 
       {!sub.mapsUrl && (
         <Field label="Google Maps URL">

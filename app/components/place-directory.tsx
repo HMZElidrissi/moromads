@@ -52,6 +52,7 @@ export type Place = {
   gradient: string;
   images?: string[];
   tags: string[];
+  notes?: string | null;
 };
 
 type Filters = {
