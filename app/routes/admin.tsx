@@ -21,7 +21,7 @@ import {
   createDbSession,
   getSessionUser,
 } from "~/lib/auth.server";
-import { Check, X, MapPin, Clock, LayoutGrid, PlusCircle } from "lucide-react";
+import { Check, X, MapPin, Clock, LayoutGrid, PlusCircle, EyeOff } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
@@ -519,9 +519,20 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           {[
-            { label: "Live Spots", value: spots.length, icon: MapPin, color: "text-primary" },
+            {
+              label: "Live Spots",
+              value: spots.filter((s) => !s.isDraft).length,
+              icon: MapPin,
+              color: "text-primary",
+            },
+            {
+              label: "Drafts",
+              value: spots.filter((s) => s.isDraft).length,
+              icon: EyeOff,
+              color: "text-amber-500",
+            },
             { label: "Pending", value: pending.length, icon: Clock, color: "text-amber-500" },
             { label: "Approved", value: approved.length, icon: Check, color: "text-emerald-500" },
             { label: "Rejected", value: rejected.length, icon: X, color: "text-red-400" },
