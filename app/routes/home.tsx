@@ -58,7 +58,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {!selectedCity ? (
           <div className="animate-in fade-in duration-500">
             <NomadHeader />
-            <Cities onClickCity={(city) => setSearchParams({ city })} className="py-12 md:py-20" />
+            <Cities
+              onClickCity={(city) => setSearchParams({ city })}
+              places={spots}
+              className="py-12 md:py-20"
+            />
           </div>
         ) : (
           <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 bg-white">

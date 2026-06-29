@@ -135,10 +135,11 @@ function CityCard({ city, onClick }: { city: City; onClick: (name: string) => vo
 
 export type CitiesProps = React.ComponentProps<"section"> & {
   onClickCity?: (name: string) => void;
+  places?: Place[];
 };
 
-export function Cities({ onClickCity, className, ...props }: CitiesProps) {
-  const places = flattenedSpots as Place[];
+export function Cities({ onClickCity, places: liveSpots, className, ...props }: CitiesProps) {
+  const places = liveSpots ?? (flattenedSpots as Place[]);
 
   // Calculate dynamic stats for each city
   const cities = (citiesData as City[]).map((city) => {

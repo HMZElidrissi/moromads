@@ -25,7 +25,7 @@ import { Check, X, MapPin, Clock, LayoutGrid, PlusCircle, EyeOff } from "lucide-
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SpotsTable } from "~/components/admin/spots-table";
 import { SubmissionsTable } from "~/components/admin/submissions-table";
@@ -357,6 +357,7 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
     );
   const prevNavState = useRef(navigation.state);
   const prevFormRef = useRef<string | null>(null);
+  const [addFormKey, setAddFormKey] = useState(0);
 
   useEffect(() => {
     if (navigation.state === "submitting") {
@@ -367,8 +368,12 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
       const intent = prevFormRef.current;
       prevFormRef.current = null;
       if (intent === "login" || intent === "setup" || intent === "update-spot") return;
-      if (actionData?.ok === true) toast.success(ACTION_LABELS[intent] ?? "Done");
-      else if (actionData?.ok === false && "error" in actionData) toast.error(actionData.error);
+      if (actionData?.ok === true) {
+        toast.success(ACTION_LABELS[intent] ?? "Done");
+        if (intent === "create-spot") setAddFormKey((k) => k + 1);
+      } else if (actionData?.ok === false && "error" in actionData) {
+        toast.error(actionData.error);
+      }
     }
     prevNavState.current = navigation.state;
   }, [navigation.state, actionData, authed]);
@@ -574,7 +579,7 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
               <CardDescription>Publish a spot directly without a submission.</CardDescription>
             </CardHeader>
             <CardContent>
-              <AddSpotForm />
+              <AddSpotForm key={addFormKey} />
             </CardContent>
           </Card>
         )}

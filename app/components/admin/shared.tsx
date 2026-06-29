@@ -18,6 +18,7 @@ export const GRADIENTS = [
   { label: "Violet", value: "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)" },
   { label: "Amber", value: "linear-gradient(135deg, #b45309 0%, #f59e0b 100%)" },
   { label: "Rose", value: "linear-gradient(135deg, #be185d 0%, #f472b6 100%)" },
+  { label: "Surf", value: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)" },
 ];
 
 export const fileCls =
