@@ -11,7 +11,7 @@ export function Footer({ className, ...props }: FooterProps) {
       className={cn("border-t border-gray-100 bg-white py-12", className)}
       {...props}
     >
-      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-8">
+      <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-8">
         {/* Logo */}
         <Link to="/" aria-label="Moromads home">
           <img src="/logo.svg" alt="Moromads" className="h-28" />
@@ -33,7 +33,7 @@ export function Footer({ className, ...props }: FooterProps) {
         {/* Socials */}
         <div className="flex items-center gap-4">
           <a
-            href="https://instagram.com/moromads"
+            href="https://www.instagram.com/moromads_"
             target="_blank"
             rel="noopener noreferrer"
             className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-all"
@@ -54,7 +54,7 @@ export function Footer({ className, ...props }: FooterProps) {
             </svg>
           </a>
           <a
-            href="https://tiktok.com/@moromads"
+            href="https://www.tiktok.com/@moromads_"
             target="_blank"
             rel="noopener noreferrer"
             className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-all"

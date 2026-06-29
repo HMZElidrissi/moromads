@@ -1,7 +1,7 @@
 import type { Route } from "./+types/about";
 import { Footer } from "~/components/footer";
 import { NomadHeader } from "~/components/nomad-header";
-import { Heart, Globe, Users, Zap } from "lucide-react";
+import { Heart, Globe } from "lucide-react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return { origin: new URL(request.url).origin };
@@ -97,39 +97,56 @@ export default function About() {
               </div>
             </section>
 
-            {/* Values */}
-            <section className="space-y-8">
-              <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-                What we care about
-              </h2>
-              <div className="space-y-6">
-                {[
-                  {
-                    icon: <Zap size={20} />,
-                    title: "Accuracy",
-                    desc: "No more 'good WiFi' vague descriptions. We want real Mbps numbers.",
-                  },
-                  {
-                    icon: <Users size={20} />,
-                    title: "Accessibility",
-                    desc: "Helping remote workers, students, digital nomads, and focus-seekers find coworking spaces and cafés that genuinely welcome laptops.",
-                  },
-                  {
-                    icon: <Globe size={20} />,
-                    title: "Local Impact",
-                    desc: "Supporting local businesses across Morocco by connecting them with a steady community of respectful remote workers, students, digital nomads, and professionals.",
-                  },
-                ].map((val, i) => (
-                  <div key={i} className="flex gap-6 items-start">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900">
-                      {val.icon}
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-black text-gray-900">{val.title}</h4>
-                      <p className="text-gray-500 font-medium">{val.desc}</p>
-                    </div>
-                  </div>
-                ))}
+            {/* Follow CTA */}
+            <section className="rounded-[2.5rem] bg-gray-900 px-10 py-12 text-center space-y-6">
+              <h2 className="text-3xl font-black text-white tracking-tight">Follow the journey</h2>
+              <p className="text-gray-400 font-medium leading-relaxed max-w-md mx-auto">
+                We share spot discoveries, tips for working remotely in Morocco, and
+                behind-the-scenes on Instagram and TikTok.
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <a
+                  href="https://www.instagram.com/moromads_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 h-12 px-6 rounded-2xl bg-white text-gray-900 font-black text-sm hover:bg-primary hover:text-white transition-all"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4"
+                    aria-hidden
+                  >
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                  @moromads_
+                </a>
+                <a
+                  href="https://www.tiktok.com/@moromads_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 h-12 px-6 rounded-2xl bg-white/10 text-white font-black text-sm hover:bg-primary hover:text-white transition-all"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4"
+                    aria-hidden
+                  >
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                  </svg>
+                  @moromads_
+                </a>
               </div>
             </section>
           </div>
