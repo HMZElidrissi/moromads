@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS spots (
   gradient      TEXT NOT NULL,
   images        TEXT NOT NULL DEFAULT '[]',  -- JSON array
   tags          TEXT NOT NULL DEFAULT '[]',  -- JSON array
-  notes         TEXT
+  notes         TEXT,
+  is_draft      INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_spots_city ON spots (city);

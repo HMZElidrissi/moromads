@@ -8,6 +8,7 @@ import {
   createSpot,
   updateSpot,
   deleteSpot,
+  setSpotDraft,
   type Submission,
   type ApprovalDetails,
 } from "~/lib/db.server";
@@ -61,7 +62,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     getSubmissions(env.DB, "pending"),
     getSubmissions(env.DB, "approved"),
     getSubmissions(env.DB, "rejected"),
-    getAllSpots(env.DB),
+    getAllSpots(env.DB, { includeDrafts: true }),
   ]);
   return { authed: true, firstRun: false, email: user.email, pending, approved, rejected, spots };
 }
@@ -316,6 +317,14 @@ export async function action({ request, context }: Route.ActionArgs) {
     return { ok: true };
   }
 
+  if (intent === "toggle-draft") {
+    const slug = (form.get("slug") as string) ?? "";
+    const isDraft = form.get("is_draft") === "1";
+    if (!slug) return { ok: false, error: "Missing slug." };
+    await setSpotDraft(env.DB, slug, isDraft);
+    return { ok: true };
+  }
+
   return { ok: false, error: "Unknown intent" };
 }
 
@@ -324,6 +333,7 @@ const ACTION_LABELS: Record<string, string> = {
   reject: "Submission rejected",
   "create-spot": "Spot created",
   "delete-spot": "Spot deleted",
+  "toggle-draft": "Spot updated",
 };
 
 const inputCls =

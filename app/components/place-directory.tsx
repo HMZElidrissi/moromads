@@ -53,6 +53,7 @@ export type Place = {
   images?: string[];
   tags: string[];
   notes?: string | null;
+  isDraft: boolean;
 };
 
 type Filters = {

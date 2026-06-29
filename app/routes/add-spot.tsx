@@ -4,6 +4,7 @@ import { Form, Link, useActionData, useNavigation } from "react-router";
 import { addSubmission } from "~/lib/db.server";
 import { cloudflareContext } from "../../load-context";
 import { ChevronLeft, Check } from "lucide-react";
+import { PhotoPicker } from "~/components/photo-picker";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -438,13 +439,7 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                 Photos
               </h2>
               <Field label="Upload photos (optional — up to 5)">
-                <input
-                  name="images"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  className="w-full rounded-2xl border border-gray-200 px-5 py-4 text-gray-900 font-medium text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-gray-900 file:text-white hover:file:bg-primary file:transition-all"
-                />
+                <PhotoPicker max={5} />
               </Field>
             </section>
 
@@ -458,7 +453,7 @@ export default function AddSpot({ loaderData: _ }: Route.ComponentProps) {
                 <textarea
                   name="notes"
                   rows={3}
-                  placeholder="Great rooftop view, parking nearby, best espresso in Casablanca…"
+                  placeholder={"Great rooftop view\nParking nearby\nBest espresso in Casablanca"}
                   className="w-full rounded-2xl border border-gray-200 px-5 py-4 text-gray-900 font-medium placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
                 />
               </Field>

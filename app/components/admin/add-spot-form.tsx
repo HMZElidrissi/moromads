@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Field, WifiField, espressoToRange, PRICE_RANGE_HINT, fileCls, GRADIENTS } from "./shared";
+import { Field, WifiField, espressoToRange, PRICE_RANGE_HINT, GRADIENTS } from "./shared";
+import { PhotoPicker } from "~/components/photo-picker";
 
 export function AddSpotForm() {
   const [priceRange, setPriceRange] = useState("");
@@ -200,17 +201,17 @@ export function AddSpotForm() {
           <Input name="extra_tags" placeholder="sea-view, dog-friendly" />
         </Field>
 
-        <Field label="Internal Notes">
+        <Field label="Anything else we should know?">
           <textarea
             name="notes"
             rows={2}
-            placeholder="Admin-only notes about this spot…"
+            placeholder={"Great rooftop view\nParking nearby"}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
           />
         </Field>
 
         <Field label="Photos (optional)">
-          <input name="images" type="file" multiple accept="image/*" className={fileCls} />
+          <PhotoPicker max={5} />
         </Field>
 
         <Button

@@ -30,6 +30,7 @@ type Row = {
   images: string;
   tags: string;
   notes: string | null;
+  is_draft: number;
 };
 
 function rowToPlace(row: Row): Place {
@@ -61,6 +62,7 @@ function rowToPlace(row: Row): Place {
     images: JSON.parse(row.images) as string[],
     tags: JSON.parse(row.tags) as string[],
     notes: row.notes ?? null,
+    isDraft: row.is_draft === 1,
   };
 }
 
@@ -81,11 +83,22 @@ const SPOT_SELECT = `
   LEFT JOIN reviews r ON r.spot_slug = s.slug
 `;
 
-export async function getAllSpots(db: D1Database): Promise<Place[]> {
+export async function getAllSpots(
+  db: D1Database,
+  opts: { includeDrafts?: boolean } = {},
+): Promise<Place[]> {
+  const filter = opts.includeDrafts ? "" : "WHERE s.is_draft = 0";
   const { results } = await db
-    .prepare(`${SPOT_SELECT} GROUP BY s.id ORDER BY rating DESC`)
+    .prepare(`${SPOT_SELECT} ${filter} GROUP BY s.id ORDER BY rating DESC`)
     .all<Row>();
   return results.map(rowToPlace);
+}
+
+export async function setSpotDraft(db: D1Database, slug: string, isDraft: boolean): Promise<void> {
+  await db
+    .prepare("UPDATE spots SET is_draft = ? WHERE slug = ?")
+    .bind(isDraft ? 1 : 0, slug)
+    .run();
 }
 
 export async function getSpotBySlug(db: D1Database, slug: string): Promise<Place | null> {

@@ -1,7 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Building2, Ellipsis, MapPin, Star, Wifi } from "lucide-react";
+import { Building2, Ellipsis, Globe, MapPin, Star, Wifi, EyeOff } from "lucide-react";
 import { Link } from "react-router";
-
 import type { Place } from "~/components/place-directory";
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
 import { Badge } from "~/components/ui/badge";
@@ -24,12 +23,19 @@ const TYPE_OPTIONS: DataTableOption[] = [
   { label: "Coworking", value: "coworking" },
 ];
 
+const STATUS_OPTIONS: DataTableOption[] = [
+  { label: "Published", value: "false" },
+  { label: "Draft", value: "true" },
+];
+
 export function spotsColumns({
   cityOptions,
   onDelete,
+  onToggleDraft,
 }: {
   cityOptions: DataTableOption[];
   onDelete: (slug: string) => void;
+  onToggleDraft: (slug: string, isDraft: boolean) => void;
 }): ColumnDef<Place>[] {
   return [
     {
@@ -120,6 +126,32 @@ export function spotsColumns({
       enableHiding: true,
     },
     {
+      id: "isDraft",
+      accessorKey: "isDraft",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+      cell: ({ row }) =>
+        row.original.isDraft ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+            <EyeOff className="size-3" aria-hidden />
+            Draft
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+            <Globe className="size-3" aria-hidden />
+            Published
+          </span>
+        ),
+      meta: {
+        label: "Status",
+        variant: "multiSelect",
+        options: STATUS_OPTIONS,
+      },
+      filterFn: clientMultiSelectFilter,
+      enableColumnFilter: true,
+      enableSorting: true,
+      enableHiding: true,
+    },
+    {
       id: "wifiMbps",
       accessorKey: "wifiMbps",
       header: ({ column }) => <DataTableColumnHeader column={column} title="WiFi" />,
@@ -170,6 +202,11 @@ export function spotsColumns({
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => row.toggleExpanded()}>
                 {row.getIsExpanded() ? "Close edit" : "Edit"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => onToggleDraft(row.original.slug, !row.original.isDraft)}
+              >
+                {row.original.isDraft ? "Publish" : "Set as draft"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

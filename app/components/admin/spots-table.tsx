@@ -14,6 +14,7 @@ export type SpotsTableProps = { spots: Place[] };
 
 export function SpotsTable({ spots }: SpotsTableProps) {
   const deleteFetcher = useFetcher();
+  const draftFetcher = useFetcher();
 
   const cityOptions = useMemo<DataTableOption[]>(
     () => [...new Set(spots.map((s) => s.city))].sort().map((c) => ({ label: c, value: c })),
@@ -26,8 +27,13 @@ export function SpotsTable({ spots }: SpotsTableProps) {
         cityOptions,
         onDelete: (slug) =>
           deleteFetcher.submit({ intent: "delete-spot", slug }, { method: "post" }),
+        onToggleDraft: (slug, isDraft) =>
+          draftFetcher.submit(
+            { intent: "toggle-draft", slug, is_draft: isDraft ? "1" : "0" },
+            { method: "post" },
+          ),
       }),
-    [cityOptions, deleteFetcher],
+    [cityOptions, deleteFetcher, draftFetcher],
   );
 
   const table = useUrlDataTable({
