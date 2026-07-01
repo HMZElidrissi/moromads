@@ -33,7 +33,7 @@ import { AddSpotForm } from "~/components/admin/add-spot-form";
 import { Field } from "~/components/admin/shared";
 
 export function meta() {
-  return [{ title: "Admin | Moromads" }];
+  return [{ title: "Admin | Moromads" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 async function getAuthedUser(request: Request, env: { DB: D1Database; ADMIN_KEY: string }) {

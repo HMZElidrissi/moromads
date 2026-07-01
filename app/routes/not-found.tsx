@@ -11,6 +11,7 @@ export function meta(_: Route.MetaArgs) {
       name: "description",
       content: "The work spot you are looking for doesn't exist in our directory.",
     },
+    { name: "robots", content: "noindex, nofollow" },
   ];
 }
 

@@ -11,7 +11,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const title = "About Moromads — Find the Best Work & Study Spots in Morocco";
   const description =
     "Moromads is a community-driven directory for remote workers, students, digital nomads, and focus-seekers in Morocco. Find cafés and coworking spaces with verified WiFi, noise, and comfort data.";
-  const ogImage = `${loaderData.origin}/android-chrome-512x512.png`;
+  const ogImage = `${loaderData.origin}/og-image.png`;
+  const pageUrl = `${loaderData.origin}/about`;
   return [
     { title },
     { name: "description", content: description },
@@ -20,10 +21,16 @@ export function meta({ loaderData }: Route.MetaArgs) {
     { property: "og:title", content: title },
     { property: "og:description", content: description },
     { property: "og:image", content: ogImage },
+    { property: "og:url", content: pageUrl },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
     { name: "twitter:image", content: ogImage },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: pageUrl,
+    },
   ];
 }
 

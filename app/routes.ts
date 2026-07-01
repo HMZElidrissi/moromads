@@ -7,6 +7,8 @@ export default [
   route("admin", "routes/admin.tsx"),
   route("admin/logout", "routes/admin.logout.tsx"),
   route("about", "routes/about.tsx"),
+  route("sitemap.xml", "routes/sitemap.xml.ts"),
+  route("robots.txt", "routes/robots.txt.ts"),
   route("images/*", "routes/images.tsx"),
   route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

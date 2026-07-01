@@ -11,28 +11,41 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useSearchParams } from "react-router";
 
-export function meta({ loaderData }: Route.MetaArgs) {
-  const title = "Moromads — Best Work & Study Cafés & Coworking Spaces in Morocco";
-  const description =
-    "Find the best coworking spaces and cafés with fast WiFi to work, study, or co-work as a remote worker, student, or digital nomad across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more.";
-  const ogImage = `${loaderData.origin}/android-chrome-512x512.png`;
+export function meta({ loaderData, location }: Route.MetaArgs) {
+  const searchParams = new URLSearchParams(location.search);
+  const city = searchParams.get("city");
+
+  const title = city
+    ? `Best Work & Study Spots in ${city} | Moromads`
+    : "Moromads — Best Work & Study Cafés & Coworking Spaces in Morocco";
+
+  const description = city
+    ? `Find the best cafés and coworking spaces with fast WiFi to work or study in ${city}, Morocco. Verified WiFi speeds, noise, and comfort data.`
+    : "Find the best coworking spaces and cafés with fast WiFi to work, study, or co-work as a remote worker, student, or digital nomad across Morocco — Casablanca, Marrakech, Agadir, Rabat, Fez & more.";
+
+  const ogImage = `${loaderData.origin}/og-image.png`;
+  const pageUrl = city
+    ? `${loaderData.origin}/?city=${encodeURIComponent(city)}`
+    : loaderData.origin;
+
   return [
     { title },
     { name: "description", content: description },
     { property: "og:type", content: "website" },
     { property: "og:site_name", content: "Moromads" },
     { property: "og:title", content: title },
-    {
-      property: "og:description",
-      content:
-        "Morocco's #1 directory for remote workers, students, digital nomads, and focus-seekers. Verified cafés and coworking spaces with real WiFi data across every major city.",
-    },
+    { property: "og:description", content: description },
     { property: "og:image", content: ogImage },
-    { property: "og:url", content: loaderData.origin },
+    { property: "og:url", content: pageUrl },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
     { name: "twitter:image", content: ogImage },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: pageUrl,
+    },
   ];
 }
 

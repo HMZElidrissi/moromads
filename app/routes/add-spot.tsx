@@ -28,10 +28,16 @@ const CITIES = [
   "Other",
 ];
 
-export function meta() {
+export async function loader({ request }: Route.LoaderArgs) {
+  return { origin: new URL(request.url).origin };
+}
+
+export function meta({ loaderData }: Route.MetaArgs) {
   const title = "Add a Spot | Moromads";
   const description =
     "Know a great café or coworking space in Morocco? Submit it to the Moromads directory.";
+  const ogImage = `${loaderData.origin}/og-image.png`;
+  const pageUrl = `${loaderData.origin}/add-spot`;
   return [
     { title },
     { name: "description", content: description },
@@ -39,7 +45,15 @@ export function meta() {
     { property: "og:site_name", content: "Moromads" },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
+    { property: "og:image", content: ogImage },
+    { property: "og:url", content: pageUrl },
     { name: "twitter:card", content: "summary" },
+    { name: "twitter:image", content: ogImage },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: pageUrl,
+    },
   ];
 }
 

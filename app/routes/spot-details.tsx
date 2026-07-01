@@ -67,12 +67,18 @@ export function meta({ loaderData }: Route.MetaArgs) {
     return [
       { title: "Spot Not Found | Moromads" },
       { name: "description", content: "The work spot you are looking for doesn't exist." },
+      { name: "robots", content: "noindex, nofollow" },
     ];
   }
 
   const title = `${spot.name} | Work Spot in ${spot.city} | Moromads`;
   const description = `Work from ${spot.name} in ${spot.city}. WiFi: ${spot.wifiMbps} Mbps, Noise: ${spot.noiseScoreLabel}, Comfort: ${spot.comfortScoreLabel}. Find the best places to work from in Morocco.`;
-  const ogImage = `${origin}/android-chrome-512x512.png`;
+  const mainImage = spot.images?.[0];
+  const ogImage = mainImage
+    ? mainImage.startsWith("http")
+      ? mainImage
+      : `${origin}${mainImage}`
+    : `${origin}/og-image.png`;
   const pageUrl = `${origin}/spots/${spot.slug}`;
 
   return [
@@ -91,6 +97,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
     { name: "twitter:title", content: `${spot.name} — ${spot.city}` },
     { name: "twitter:description", content: description },
     { name: "twitter:image", content: ogImage },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: pageUrl,
+    },
   ];
 }
 
@@ -154,8 +165,44 @@ export default function SpotDetails({ loaderData }: Route.ComponentProps) {
     if (hasRated) setRatings({ wifi: 0, noise: 0, comfort: 0, staff: 0 });
   };
 
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": spot.type === "coworking" ? "CoworkingSpace" : "CafeOrCoffeeShop",
+    name: spot.name,
+    description: `Work-friendly ${spot.type} in ${spot.city} with verified WiFi speed of ${spot.wifiMbps} Mbps, noise level ${spot.noiseScoreLabel.toLowerCase()}, and ${spot.comfortScoreLabel.toLowerCase()} comfort.`,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: spot.address,
+      addressLocality: spot.city,
+      addressCountry: "MA",
+    },
+    url: `${loaderData.origin}/spots/${spot.slug}`,
+    ...(spot.images && spot.images.length > 0
+      ? {
+          image: spot.images.map((img) =>
+            img.startsWith("http") ? img : `${loaderData.origin}${img}`,
+          ),
+        }
+      : {}),
+    ...(spot.reviewCount > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: spot.rating,
+            reviewCount: spot.reviewCount,
+            bestRating: "5",
+            worstRating: "1",
+          },
+        }
+      : {}),
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-360 mx-auto px-6 h-20 flex items-center justify-between">
           <Link
